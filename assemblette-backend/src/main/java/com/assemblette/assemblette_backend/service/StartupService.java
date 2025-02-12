@@ -13,6 +13,6 @@ public class StartupService {
 
     @PostConstruct
     public void startup() {
-        deputyService.addDeputiesFromResourcesFile("liste_deputes_libre_office.json");
+        deputyService.addDeputiesFromResourcesFile("tempForDatabase/liste_deputes_libre_office.json");
     }
 }
