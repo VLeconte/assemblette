@@ -59,6 +59,6 @@ public class DeputyController {
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteDeputyById(@PathVariable("id") Long deputyId) {
         deputyService.deleteDeputyById(deputyId);
-        return ResponseEntity.ok("Employee deleted successfully");
+        return ResponseEntity.ok("Deputy deleted successfully");
     }
 }
