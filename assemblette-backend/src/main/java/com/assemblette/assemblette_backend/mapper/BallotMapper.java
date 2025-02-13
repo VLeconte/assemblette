@@ -7,14 +7,14 @@ public class BallotMapper {
     public static BallotDto mapToBallotDto(Ballot ballot) {
         return new BallotDto(
                 ballot.getId(),
-                ballot.getTitre(),
-                ballot.getDateScrutin());
+                ballot.getTitle(),
+                ballot.getBallotDate());
     }
 
     public static Ballot mapToBallot(BallotDto ballotDto) {
         return new Ballot(
                 ballotDto.getId(),
-                ballotDto.getTitre(),
-                ballotDto.getDateScrutin());
+                ballotDto.getTitle(),
+                ballotDto.getBallotDate());
     }
 }

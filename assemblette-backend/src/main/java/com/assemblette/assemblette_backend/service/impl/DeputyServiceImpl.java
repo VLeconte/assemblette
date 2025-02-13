@@ -51,14 +51,14 @@ public class DeputyServiceImpl implements DeputyService {
         Deputy deputy = deputyRepository.findById(deputyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Deputy does not exist with given id : " + deputyId));
 
-        deputy.setPrenom(deputyDto.getPrenom());
-        deputy.setNom(deputyDto.getNom());
+        deputy.setFirstName(deputyDto.getFirstName());
+        deputy.setLastName(deputyDto.getLastName());
         deputy.setRegion(deputyDto.getRegion());
-        deputy.setDepartement(deputyDto.getDepartement());
-        deputy.setNumeroDeCirconscription(deputyDto.getNumeroDeCirconscription());
+        deputy.setDepartment(deputyDto.getDepartment());
+        deputy.setConstituencyNumber(deputyDto.getConstituencyNumber());
         deputy.setProfession(deputyDto.getProfession());
-        deputy.setGroupePolitiqueComplet(deputyDto.getGroupePolitiqueComplet());
-        deputy.setGroupePolitiqueAbrege(deputyDto.getGroupePolitiqueAbrege());
+        deputy.setPoliticalGroupFull(deputyDto.getPoliticalGroupFull());
+        deputy.setPoliticalGroupAbbreviated(deputyDto.getPoliticalGroupAbbreviated());
 
         Deputy updatedDeputy = deputyRepository.save(deputy);
         return DeputyMapper.mapToDeputyDto(updatedDeputy);

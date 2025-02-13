@@ -22,11 +22,11 @@ public class Vote {
     private Long id;
 
     @ManyToOne
-    private Ballot scrutin;
+    private Ballot ballot;
 
     @ManyToOne
-    private Deputy depute;
+    private Deputy deputy;
 
     @Column(nullable = false)
-    private String statut;
+    private String state;
 }

@@ -18,15 +18,15 @@ public class Deputy {
     private Long id;
 
     @Column(nullable = false)
-    private String prenom;
+    private String firstName;
 
     @Column(nullable = false)
-    private String nom;
+    private String lastName;
 
     private String region;
-    private String departement;
-    private int numeroDeCirconscription;
+    private String department;
+    private int constituencyNumber;
     private String profession;
-    private String groupePolitiqueComplet;
-    private String groupePolitiqueAbrege;
+    private String politicalGroupFull;
+    private String politicalGroupAbbreviated;
 }

@@ -8,39 +8,39 @@ public class DeputyMapper {
     public static DeputyDto mapToDeputyDto(Deputy deputy) {
         return new DeputyDto(
                 deputy.getId(),
-                deputy.getPrenom(),
-                deputy.getNom(),
+                deputy.getFirstName(),
+                deputy.getLastName(),
                 deputy.getRegion(),
-                deputy.getDepartement(),
-                deputy.getNumeroDeCirconscription(),
+                deputy.getDepartment(),
+                deputy.getConstituencyNumber(),
                 deputy.getProfession(),
-                deputy.getGroupePolitiqueComplet(),
-                deputy.getGroupePolitiqueAbrege());
+                deputy.getPoliticalGroupFull(),
+                deputy.getPoliticalGroupAbbreviated());
     }
 
     public static Deputy mapToDeputy(DeputyDto deputyDto) {
         return new Deputy(
                 deputyDto.getId(),
-                deputyDto.getPrenom(),
-                deputyDto.getNom(),
+                deputyDto.getFirstName(),
+                deputyDto.getLastName(),
                 deputyDto.getRegion(),
-                deputyDto.getDepartement(),
-                deputyDto.getNumeroDeCirconscription(),
+                deputyDto.getDepartment(),
+                deputyDto.getConstituencyNumber(),
                 deputyDto.getProfession(),
-                deputyDto.getGroupePolitiqueComplet(),
-                deputyDto.getGroupePolitiqueAbrege());
+                deputyDto.getPoliticalGroupFull(),
+                deputyDto.getPoliticalGroupAbbreviated());
     }
 
     public static Deputy mapToDeputy(DeputyJsonDto deputyJsonDto) {
         return new Deputy(
                 deputyJsonDto.getId(),
-                deputyJsonDto.getPrenom(),
-                deputyJsonDto.getNom(),
+                deputyJsonDto.getFirstName(),
+                deputyJsonDto.getLastName(),
                 deputyJsonDto.getRegion(),
-                deputyJsonDto.getDepartement(),
-                deputyJsonDto.getNumeroDeCirconscription(),
+                deputyJsonDto.getDepartment(),
+                deputyJsonDto.getConstituencyNumber(),
                 deputyJsonDto.getProfession(),
-                deputyJsonDto.getGroupePolitiqueComplet(),
-                deputyJsonDto.getGroupePolitiqueAbrege());
+                deputyJsonDto.getPoliticalGroupFull(),
+                deputyJsonDto.getPoliticalGroupAbbreviated());
     }
 }

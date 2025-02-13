@@ -7,16 +7,16 @@ public class VoteMapper {
     public static VoteDto mapToVoteDto(Vote vote) {
         return new VoteDto(
                 vote.getId(),
-                vote.getScrutin(),
-                vote.getDepute(),
-                vote.getStatut());
+                vote.getBallot(),
+                vote.getDeputy(),
+                vote.getState());
     }
 
     public static Vote mapToVote(VoteDto voteDto) {
         return new Vote(
                 voteDto.getId(),
-                voteDto.getScrutin(),
-                voteDto.getDepute(),
-                voteDto.getStatut());
+                voteDto.getBallot(),
+                voteDto.getDeputy(),
+                voteDto.getState());
     }
 }

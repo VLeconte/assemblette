@@ -13,19 +13,19 @@ public class DeputyJsonDto {
     @JsonProperty("identifiant")
     private Long id;
     @JsonProperty("Prénom")
-    private String prenom;
+    private String firstName;
     @JsonProperty("Nom")
-    private String nom;
+    private String lastName;
     @JsonProperty("Région")
     private String region;
     @JsonProperty("Département")
-    private String departement;
+    private String department;
     @JsonProperty("Numéro de circonscription")
-    private int numeroDeCirconscription;
+    private int constituencyNumber;
     @JsonProperty("Profession")
     private String profession;
     @JsonProperty("Groupe politique (complet)")
-    private String groupePolitiqueComplet;
+    private String politicalGroupFull;
     @JsonProperty("Groupe politique (abrégé)")
-    private String groupePolitiqueAbrege;
+    private String politicalGroupAbbreviated;
 }

@@ -18,8 +18,8 @@ public class Ballot {
     private String id;
 
     @Column(nullable = false)
-    private String titre;
+    private String title;
 
     @Column(nullable = false)
-    private String dateScrutin;
+    private String ballotDate;
 }

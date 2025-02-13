@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class VoteDto {
     private Long id;
-    private Ballot scrutin;
-    private Deputy depute;
-    private String statut;
+    private Ballot ballot;
+    private Deputy deputy;
+    private String state;
 }

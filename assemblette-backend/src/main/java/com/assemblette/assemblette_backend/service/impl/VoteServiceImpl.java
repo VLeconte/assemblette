@@ -46,9 +46,9 @@ public class VoteServiceImpl implements VoteService {
         Vote vote = voteRepository.findById(voteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vote does not exist with given id : " + voteId));
 
-        vote.setScrutin(voteDto.getScrutin());
-        vote.setDepute(voteDto.getDepute());
-        vote.setStatut(voteDto.getStatut());
+        vote.setBallot(voteDto.getBallot());
+        vote.setDeputy(voteDto.getDeputy());
+        vote.setState(voteDto.getState());
 
         Vote updatedVote = voteRepository.save(vote);
         return VoteMapper.mapToVoteDto(updatedVote);

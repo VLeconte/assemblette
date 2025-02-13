@@ -46,8 +46,8 @@ public class BallotServiceImpl implements BallotService {
         Ballot ballot = ballotRepository.findById(ballotId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ballot does not exist with given id : " + ballotId));
 
-        ballot.setTitre(ballotDto.getTitre());
-        ballot.setDateScrutin(ballotDto.getDateScrutin());
+        ballot.setTitle(ballotDto.getTitle());
+        ballot.setBallotDate(ballotDto.getBallotDate());
 
         Ballot updatedBallot = ballotRepository.save(ballot);
         return BallotMapper.mapToBallotDto(updatedBallot);

@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BallotDto {
     private String id;
-    private String titre;
-    private String dateScrutin;
+    private String title;
+    private String ballotDate;
 }
