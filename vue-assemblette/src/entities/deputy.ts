@@ -1,11 +1,11 @@
 export interface Deputy {
   id: number
-  prenom: string
-  nom: string
+  firstName: string
+  lastName: string
   region: string
-  departement: string
-  numeroDeCirconscription: number
+  department: string
+  constituencyNumber: number
   profession: string
-  groupePolitiqueComplet: string
-  groupePolitiqueAbrege: string
+  politicalGroupFull: string
+  politicalGroupAbbreviated: string
 }
