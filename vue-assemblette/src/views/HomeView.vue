@@ -27,7 +27,7 @@ onMounted(
 </script>
 
 <template>
-  <div class="grid grid-cols-6">
+  <div class="w-screen flex flex-wrap gap-8 p-4 justify-center">
     <DeputyCard v-for="deputy in deputies.data" :key="deputy.id" :deputy="deputy" />
   </div>
 </template>

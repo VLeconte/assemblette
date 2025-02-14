@@ -36,7 +36,7 @@ public class VoteServiceImpl implements VoteService {
     }
 
     @Override
-    public List<VoteDto> getAllVotes() {
+    public List<VoteDto> getAllVotes(String ballotId, String state) {
         List<Vote> votes = voteRepository.findAll();
         return votes.stream().map((vote) -> VoteMapper.mapToVoteDto(vote)).collect(Collectors.toList());
     }
@@ -60,5 +60,4 @@ public class VoteServiceImpl implements VoteService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vote does not exist with given id : " + voteId));
         voteRepository.deleteById(voteId);
     }
-
 }

@@ -9,7 +9,7 @@ public interface VoteService {
 
     VoteDto getVoteById(String voteId);
 
-    List<VoteDto> getAllVotes();
+    List<VoteDto> getAllVotes(String ballotId, String state);
 
     VoteDto updateVote(String voteId, VoteDto voteDto);
 

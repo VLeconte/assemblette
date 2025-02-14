@@ -41,16 +41,16 @@ const getPoliticalColor = function (politicalGroup: string) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-y-1 gap-x-2 rounded-xl bg-white m-6 p-3 shadow-lg outline outline-black/5">
-    <div class="text-lg text-gray-700">
+  <div class="flex-none grid grid-cols-1 gap-3 w-2xs p-3 rounded-xl bg-white shadow-md outline outline-black/5">
+    <div class="text-base text-gray-700">
       <p>{{ deputy.firstName }} {{ deputy.lastName }}</p>
     </div>
-    <div class="flex flex-row gap-x-2 items-top">
-      <i :class="['text-lg', 'pi', 'pi-building-columns', getPoliticalColor(deputy.politicalGroupFull)]"></i>
-      <p class="text-sm text-gray-500">{{ deputy.politicalGroupFull }}</p>
+    <div class="flex flex-row gap-x-2 items-baseline">
+      <i :class="['text-sm', 'pi', 'pi-building-columns', getPoliticalColor(deputy.politicalGroupFull)]"></i>
+      <p class="text-sm text-gray-500 p-0">{{ deputy.politicalGroupFull }}</p>
     </div>
-    <div class="flex flex-row gap-x-2 items-top">
-      <i class="text-lg pi pi-map-marker text-orange-300"></i>
+    <div class="flex flex-row gap-x-2 items-baseline">
+      <i class="text-sm pi pi-map-marker text-orange-300"></i>
       <p class="text-sm text-gray-500">{{ deputy.region }}, {{ deputy.department }}</p>
     </div>
   </div>

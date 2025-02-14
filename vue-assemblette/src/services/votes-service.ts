@@ -15,7 +15,7 @@ export default class VotesService {
         throw new Error(err.message)
       } else {
         console.error(err)
-        throw new Error('An unexpected error occurred')
+        throw new Error('Error fetching votes')
       }
     }
   }

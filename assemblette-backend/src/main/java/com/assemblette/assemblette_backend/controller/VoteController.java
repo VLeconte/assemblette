@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.assemblette.assemblette_backend.dto.VoteDto;
@@ -43,8 +44,10 @@ public class VoteController {
 
     // Build Get All Votes REST API
     @GetMapping
-    public ResponseEntity<List<VoteDto>> getAllVotes() {
-        List<VoteDto> votesDto = voteService.getAllVotes();
+    public ResponseEntity<List<VoteDto>> getAllVotes(
+            @RequestParam(required = false) String ballotId,
+            @RequestParam(required = false) String state) {
+        List<VoteDto> votesDto = voteService.getAllVotes(ballotId, state);
         return ResponseEntity.ok(votesDto);
     }
 
@@ -62,4 +65,5 @@ public class VoteController {
         voteService.deleteVoteById(voteId);
         return ResponseEntity.ok("Vote deleted successfully");
     }
+
 }
