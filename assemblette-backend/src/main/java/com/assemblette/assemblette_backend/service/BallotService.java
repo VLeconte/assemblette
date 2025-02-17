@@ -14,4 +14,6 @@ public interface BallotService {
     BallotDto updateBallot(String ballotId, BallotDto ballotDto);
 
     void deleteBallotById(String ballotId);
+
+    void addBallotsFromResourcesFile(String folderName);
 }

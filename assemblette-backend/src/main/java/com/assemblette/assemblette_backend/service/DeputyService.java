@@ -15,5 +15,5 @@ public interface DeputyService {
 
     void deleteDeputyById(Long deputyId);
 
-    void addDeputiesFromResourcesFile(String pathString);
+    void addDeputiesFromResourcesFile(String fileName);
 }
