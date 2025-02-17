@@ -42,19 +42,19 @@ onMounted(
     }
   }
 );
-
 </script>
 
 <template>
-  <div class="flex flex-col gap-y-1 gap-x-2 rounded-xl bg-white m-6 p-3 shadow-lg outline outline-black/5">
-    <div class="text-lg text-gray-700">
+  <div class="grid grid-cols-1 gap-3 p-3 rounded-xl bg-white shadow-md outline outline-black/5">
+    <div class="text-base text-gray-700">
       <p>{{ ballotsService.capitalizeFirstLetter(ballot.title) }}</p>
     </div>
-    <div class="flex flex-row gap-x-2 items-top">
-      <p>{{ ballot.ballotDate }}</p>
+    <div class="flex flex-row gap-x-2 items-baseline">
+      <i class="text-sm text-gray-500 pi pi-calendar-minus"></i>
+      <p class="text-sm text-gray-500 p-0">{{ ballot.ballotDate }}</p>
     </div>
-    <div class="grid grid-cols-5">
-      <VotesColumn v-for="[key, value] of votes.data" :key="key" :votes="value" :name="key" />
+    <div class="flex flex-wrap justify-center">
+      <VotesColumn v-for="[key, value] of votes.data" :key="key" :votes="value" :name=key />
     </div>
   </div>
 </template>

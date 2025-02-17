@@ -13,12 +13,48 @@ defineProps({
   }
 });
 
+interface titleStyle {
+  nameToDisplay: string,
+  icon: string,
+  iconColor: string
+}
+
+const nameToTitleStyle = new Map<string, titleStyle>([
+  ["nonVotants", {
+    nameToDisplay: "Non votant",
+    icon: "pi-times",
+    iconColor: "text-blue-500",
+  }],
+  ["pour", {
+    nameToDisplay: "Pour",
+    icon: "pi-thumbs-up-fill",
+    iconColor: "text-green-600",
+  }],
+  ["contre", {
+    nameToDisplay: "Contre",
+    icon: "pi-thumbs-down-fill",
+    iconColor: "text-red-600",
+  }],
+  ["abstentions", {
+    nameToDisplay: "Abstention",
+    icon: "pi-stop",
+    iconColor: "text-amber-400",
+  }],
+  ["nonVotantsVolontaires", {
+    nameToDisplay: "Non votant volontaire",
+    icon: "pi-times-circle",
+    iconColor: "text-blue-700",
+  }],
+])
+
 </script>
 
 <template>
-  <div class="flex flex-col gap-y-1 gap-x-2 rounded-xl bg-white m-6 p-3 shadow-lg outline outline-black/5">
-    <div class="text-lg text-gray-700">
-      <p>{{ name }} </p>
+  <div
+    class="flex flex-wrap flex-none w-xs gap-y-1 gap-x-2 rounded-xl bg-white m-6 p-3 shadow-lg outline outline-black/5">
+    <div class="flex flex-row gap-x-2 items-baseline">
+      <i :class="['text-base', 'pi', nameToTitleStyle.get(name)!.icon, nameToTitleStyle.get(name)!.iconColor]"></i>
+      <p class="text-base">{{ nameToTitleStyle.get(name)!.nameToDisplay }}</p>
     </div>
     <DeputyCard v-for="vote in votes" :key="vote.id" :deputy="vote.deputy" />
   </div>

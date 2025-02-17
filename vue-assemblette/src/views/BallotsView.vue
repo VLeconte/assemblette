@@ -27,7 +27,7 @@ onMounted(
 </script>
 
 <template>
-  <div>
+  <div class="w-screen grid grid-cols-1 gap-8 p-4 justify-center">
     <BallotCard v-for="ballot in ballots.data" :key="ballot.id" :ballot="ballot" />
   </div>
 </template>
