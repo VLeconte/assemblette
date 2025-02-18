@@ -2,16 +2,18 @@ package com.assemblette.assemblette_backend.service;
 
 import java.util.List;
 
-import com.assemblette.assemblette_backend.dto.VoteDto;
+import com.assemblette.assemblette_backend.entity.Vote;
 
 public interface VoteService {
-    VoteDto createVote(VoteDto voteDto);
+    Vote createVote(Vote vote);
 
-    VoteDto getVoteById(String voteId);
+    Vote getVoteById(String voteId);
 
-    List<VoteDto> getAllVotes(String ballotId, String state);
+    List<Vote> getAllVotes(String ballotId, String state);
 
-    VoteDto updateVote(String voteId, VoteDto voteDto);
+    Vote updateVote(String voteId, Vote vote);
 
     void deleteVoteById(String voteId);
+
+    void addVotesFromResourcesFolder(String folderName);
 }

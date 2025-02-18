@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.assemblette.assemblette_backend.dto.VoteDto;
+import com.assemblette.assemblette_backend.entity.Vote;
 import com.assemblette.assemblette_backend.service.VoteService;
 
 import lombok.AllArgsConstructor;
@@ -30,33 +30,33 @@ public class VoteController {
 
     // Build Add Vote REST API
     @PostMapping
-    public ResponseEntity<VoteDto> createVote(@RequestBody VoteDto voteDto) {
-        VoteDto savedVoteDto = voteService.createVote(voteDto);
-        return new ResponseEntity<>(savedVoteDto, HttpStatus.CREATED);
+    public ResponseEntity<Vote> createVote(@RequestBody Vote vote) {
+        Vote savedVote = voteService.createVote(vote);
+        return new ResponseEntity<>(savedVote, HttpStatus.CREATED);
     }
 
     // Build Get Vote REST API
     @GetMapping("{id}")
-    public ResponseEntity<VoteDto> getVoteById(@PathVariable("id") String voteId) {
-        VoteDto voteDto = voteService.getVoteById(voteId);
-        return ResponseEntity.ok(voteDto);
+    public ResponseEntity<Vote> getVoteById(@PathVariable("id") String voteId) {
+        Vote vote = voteService.getVoteById(voteId);
+        return ResponseEntity.ok(vote);
     }
 
     // Build Get All Votes REST API
     @GetMapping
-    public ResponseEntity<List<VoteDto>> getAllVotes(
+    public ResponseEntity<List<Vote>> getAllVotes(
             @RequestParam(required = false) String ballotId,
             @RequestParam(required = false) String state) {
-        List<VoteDto> votesDto = voteService.getAllVotes(ballotId, state);
+        List<Vote> votesDto = voteService.getAllVotes(ballotId, state);
         return ResponseEntity.ok(votesDto);
     }
 
     // Build Update Vote REST API
     @PutMapping("{id}")
-    public ResponseEntity<VoteDto> updateVote(@PathVariable("id") String voteId,
-            @RequestBody VoteDto voteDto) {
-        VoteDto updatedVoteDto = voteService.updateVote(voteId, voteDto);
-        return ResponseEntity.ok(updatedVoteDto);
+    public ResponseEntity<Vote> updateVote(@PathVariable("id") String voteId,
+            @RequestBody Vote vote) {
+        Vote updatedVote = voteService.updateVote(voteId, vote);
+        return ResponseEntity.ok(updatedVote);
     }
 
     // Build Delete Vote REST API

@@ -14,9 +14,14 @@ public class StartupService {
     @Autowired
     private BallotService ballotService;
 
+    @Autowired
+    private VoteService voteService;
+
     @PostConstruct
     public void startup() {
-        deputyService.addDeputiesFromResourcesFile("tempForDatabase/liste_deputes_libre_office.json");
-        ballotService.addBallotsFromResourcesFile("tempForDatabase/Scrutins/json");
+        deputyService.addDeputiesFromResourcesFolder(
+                "tempForDatabase/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json/json/acteur");
+        ballotService.addBallotsFromResourcesFolder("tempForDatabase/Scrutins/json");
+        voteService.addVotesFromResourcesFolder("tempForDatabase/Scrutins/json");
     }
 }

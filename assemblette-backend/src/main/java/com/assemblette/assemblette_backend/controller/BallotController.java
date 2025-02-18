@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.assemblette.assemblette_backend.dto.BallotDto;
+import com.assemblette.assemblette_backend.entity.Ballot;
 import com.assemblette.assemblette_backend.service.BallotService;
 
 import lombok.AllArgsConstructor;
@@ -29,31 +29,31 @@ public class BallotController {
 
     // Build Add Ballot REST API
     @PostMapping
-    public ResponseEntity<BallotDto> createBallot(@RequestBody BallotDto ballotDto) {
-        BallotDto savedBallotDto = ballotService.createBallot(ballotDto);
-        return new ResponseEntity<>(savedBallotDto, HttpStatus.CREATED);
+    public ResponseEntity<Ballot> createBallot(@RequestBody Ballot ballot) {
+        Ballot savedBallot = ballotService.createBallot(ballot);
+        return new ResponseEntity<>(savedBallot, HttpStatus.CREATED);
     }
 
     // Build Get Ballot REST API
     @GetMapping("{id}")
-    public ResponseEntity<BallotDto> getBallotById(@PathVariable("id") String ballotId) {
-        BallotDto ballotDto = ballotService.getBallotById(ballotId);
-        return ResponseEntity.ok(ballotDto);
+    public ResponseEntity<Ballot> getBallotById(@PathVariable("id") String ballotId) {
+        Ballot ballot = ballotService.getBallotById(ballotId);
+        return ResponseEntity.ok(ballot);
     }
 
     // Build Get All Ballots REST API
     @GetMapping
-    public ResponseEntity<List<BallotDto>> getAllBallots() {
-        List<BallotDto> ballotsDto = ballotService.getAllBallots();
+    public ResponseEntity<List<Ballot>> getAllBallots() {
+        List<Ballot> ballotsDto = ballotService.getAllBallots();
         return ResponseEntity.ok(ballotsDto);
     }
 
     // Build Update Ballot REST API
     @PutMapping("{id}")
-    public ResponseEntity<BallotDto> updateBallot(@PathVariable("id") String ballotId,
-            @RequestBody BallotDto ballotDto) {
-        BallotDto updatedBallotDto = ballotService.updateBallot(ballotId, ballotDto);
-        return ResponseEntity.ok(updatedBallotDto);
+    public ResponseEntity<Ballot> updateBallot(@PathVariable("id") String ballotId,
+            @RequestBody Ballot ballot) {
+        Ballot updatedBallot = ballotService.updateBallot(ballotId, ballot);
+        return ResponseEntity.ok(updatedBallot);
     }
 
     // Build Delete Ballot REST API

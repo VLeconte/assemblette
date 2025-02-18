@@ -1,23 +1,14 @@
 package com.assemblette.assemblette_backend.service.impl;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
-import com.assemblette.assemblette_backend.dto.BallotDto;
 import com.assemblette.assemblette_backend.dto.BallotJsonDto;
-import com.assemblette.assemblette_backend.dto.VoteDto;
 import com.assemblette.assemblette_backend.entity.Ballot;
-import com.assemblette.assemblette_backend.entity.Deputy;
-import com.assemblette.assemblette_backend.entity.Vote;
 import com.assemblette.assemblette_backend.exception.ResourceNotFoundException;
 import com.assemblette.assemblette_backend.mapper.BallotMapper;
 import com.assemblette.assemblette_backend.repository.BallotRepository;
@@ -34,36 +25,34 @@ public class BallotServiceImpl implements BallotService {
     private BallotRepository ballotRepository;
 
     @Override
-    public BallotDto createBallot(BallotDto ballotDto) {
-
-        Ballot ballot = BallotMapper.mapToBallot((ballotDto));
+    public Ballot createBallot(Ballot ballot) {
         Ballot savedBallot = ballotRepository.save(ballot);
-        return BallotMapper.mapToBallotDto(savedBallot);
+        return savedBallot;
     }
 
     @Override
-    public BallotDto getBallotById(String ballotId) {
+    public Ballot getBallotById(String ballotId) {
         Ballot ballot = ballotRepository.findById(ballotId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ballot does not exist with given id : " + ballotId));
-        return BallotMapper.mapToBallotDto(ballot);
+        return ballot;
     }
 
     @Override
-    public List<BallotDto> getAllBallots() {
+    public List<Ballot> getAllBallots() {
         List<Ballot> ballots = ballotRepository.findAll();
-        return ballots.stream().map((ballot) -> BallotMapper.mapToBallotDto(ballot)).collect(Collectors.toList());
+        return ballots;
     }
 
     @Override
-    public BallotDto updateBallot(String ballotId, BallotDto ballotDto) {
-        Ballot ballot = ballotRepository.findById(ballotId)
+    public Ballot updateBallot(String ballotId, Ballot ballot) {
+        Ballot currentBallot = ballotRepository.findById(ballotId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ballot does not exist with given id : " + ballotId));
 
-        ballot.setTitle(ballotDto.getTitle());
-        ballot.setBallotDate(ballotDto.getBallotDate());
+        currentBallot.setTitle(ballot.getTitle());
+        currentBallot.setBallotDate(ballot.getBallotDate());
 
-        Ballot updatedBallot = ballotRepository.save(ballot);
-        return BallotMapper.mapToBallotDto(updatedBallot);
+        Ballot updatedBallot = ballotRepository.save(currentBallot);
+        return updatedBallot;
     }
 
     @Override
@@ -74,7 +63,7 @@ public class BallotServiceImpl implements BallotService {
     }
 
     @Override
-    public void addBallotsFromResourcesFile(String folderName) {
+    public void addBallotsFromResourcesFolder(String folderName) {
         ObjectMapper objectMapper = new ObjectMapper();
         Resource[] ballotsResources;
 
@@ -95,55 +84,6 @@ public class BallotServiceImpl implements BallotService {
                 ballotRepository.save(BallotMapper.mapToBallot(ballotJsonDto));
 
                 System.out.println("Ballot successfully added from file: " + ballotFile.getFilename());
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to add ballot from JSON file: " + e.getMessage());
-            }
-        }
-
-        for (Resource ballotFile : ballotsResources) {
-            try {
-                InputStream inputStream = ballotFile.getInputStream();
-
-                JsonNode rootNode = objectMapper.readTree(inputStream);
-
-                List<Vote> votes = new ArrayList<Vote>();
-                String ballotId = rootNode.get("scrutin").get("uid").asText();
-                String voteState;
-                for (JsonNode groupNode : rootNode
-                        .get("scrutin")
-                        .get("ventilationVotes")
-                        .get("organe")
-                        .get("groupes")
-                        .get("groupe")) {
-                    for (Iterator<Entry<String, JsonNode>> it = groupNode
-                            .get("vote")
-                            .get("decompteNominatif").fields(); it.hasNext();) {
-                        Entry<String, JsonNode> entry = it.next();
-                        voteState = entry.getKey();
-
-                        if (entry.getValue() != null) {
-                            for (JsonNode deputy : entry.getValue().get("votant")) {
-                                votes.add(Vote
-                                        .builder()
-                                        .ballot(Ballot
-                                                .builder()
-                                                .id(ballotId)
-                                                .build())
-                                        .deputy(Deputy.builder()
-                                                .id(Long.parseLong(deputy.get("acteurRef").asText().substring(2)))
-                                                .build())
-                                        .state(voteState).build());
-                            }
-                        }
-                    }
-                }
-                // BallotJsonDto ballotJsonDto =
-                // objectMapper.treeToValue(rootNode.get("scrutin"), BallotJsonDto.class);
-
-                // ballotRepository.save(BallotMapper.mapToBallot(ballotJsonDto));
-
-                // System.out.println("Ballot successfully added from file: " +
-                // ballotFile.getFilename());
             } catch (Exception e) {
                 throw new RuntimeException("Failed to add ballot from JSON file: " + e.getMessage());
             }

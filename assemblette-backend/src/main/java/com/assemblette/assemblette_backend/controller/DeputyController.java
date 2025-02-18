@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.assemblette.assemblette_backend.dto.DeputyDto;
+import com.assemblette.assemblette_backend.entity.Deputy;
 import com.assemblette.assemblette_backend.service.DeputyService;
 
 import lombok.AllArgsConstructor;
@@ -29,30 +29,30 @@ public class DeputyController {
 
     // Build Add Deputy REST API
     @PostMapping
-    public ResponseEntity<DeputyDto> createDeputy(@RequestBody DeputyDto deputyDto) {
-        DeputyDto savedDeputyDto = deputyService.createDeputy(deputyDto);
-        return new ResponseEntity<>(savedDeputyDto, HttpStatus.CREATED);
+    public ResponseEntity<Deputy> createDeputy(@RequestBody Deputy deputy) {
+        Deputy savedDeputy = deputyService.createDeputy(deputy);
+        return new ResponseEntity<>(savedDeputy, HttpStatus.CREATED);
     }
 
     // Build Get Deputy REST API
     @GetMapping("{id}")
-    public ResponseEntity<DeputyDto> getDeputyById(@PathVariable("id") Long deputyId) {
-        DeputyDto deputyDto = deputyService.getDeputyById(deputyId);
-        return ResponseEntity.ok(deputyDto);
+    public ResponseEntity<Deputy> getDeputyById(@PathVariable("id") Long deputyId) {
+        Deputy deputy = deputyService.getDeputyById(deputyId);
+        return ResponseEntity.ok(deputy);
     }
 
     // Build Get All Deputies REST API
     @GetMapping
-    public ResponseEntity<List<DeputyDto>> getAllDeputies() {
-        List<DeputyDto> deputiesDto = deputyService.getAllDeputies();
+    public ResponseEntity<List<Deputy>> getAllDeputies() {
+        List<Deputy> deputiesDto = deputyService.getAllDeputies();
         return ResponseEntity.ok(deputiesDto);
     }
 
     // Build Update Deputy REST API
     @PutMapping("{id}")
-    public ResponseEntity<DeputyDto> updateDeputy(@PathVariable("id") Long deputyId, @RequestBody DeputyDto deputyDto) {
-        DeputyDto updatedDeputyDto = deputyService.updateDeputy(deputyId, deputyDto);
-        return ResponseEntity.ok(updatedDeputyDto);
+    public ResponseEntity<Deputy> updateDeputy(@PathVariable("id") Long deputyId, @RequestBody Deputy deputy) {
+        Deputy updatedDeputy = deputyService.updateDeputy(deputyId, deputy);
+        return ResponseEntity.ok(updatedDeputy);
     }
 
     // Build Delete Deputy REST API

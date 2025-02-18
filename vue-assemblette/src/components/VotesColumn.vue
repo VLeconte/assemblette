@@ -20,7 +20,7 @@ interface titleStyle {
 }
 
 const nameToTitleStyle = new Map<string, titleStyle>([
-  ["nonVotants", {
+  ["nonVotant", {
     nameToDisplay: "Non votant",
     icon: "pi-times",
     iconColor: "text-blue-500",
@@ -35,12 +35,12 @@ const nameToTitleStyle = new Map<string, titleStyle>([
     icon: "pi-thumbs-down-fill",
     iconColor: "text-red-600",
   }],
-  ["abstentions", {
+  ["abstention", {
     nameToDisplay: "Abstention",
     icon: "pi-stop",
     iconColor: "text-amber-400",
   }],
-  ["nonVotantsVolontaires", {
+  ["nonVotantVolontaire", {
     nameToDisplay: "Non votant volontaire",
     icon: "pi-times-circle",
     iconColor: "text-blue-700",
@@ -51,7 +51,7 @@ const nameToTitleStyle = new Map<string, titleStyle>([
 
 <template>
   <div
-    class="flex flex-wrap flex-none w-xs gap-y-1 gap-x-2 rounded-xl bg-white m-6 p-3 shadow-lg outline outline-black/5">
+    class="flex flex-col flex-none justify-start w-xs gap-y-5 p-5 gap-x-2 rounded-xl bg-white shadow-lg outline outline-black/5">
     <div class="flex flex-row gap-x-2 items-baseline">
       <i :class="['text-base', 'pi', nameToTitleStyle.get(name)!.icon, nameToTitleStyle.get(name)!.iconColor]"></i>
       <p class="text-base">{{ nameToTitleStyle.get(name)!.nameToDisplay }}</p>

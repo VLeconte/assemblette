@@ -2,19 +2,16 @@ package com.assemblette.assemblette_backend.service.impl;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
-import com.assemblette.assemblette_backend.dto.DeputyDto;
-import com.assemblette.assemblette_backend.dto.DeputyJsonDto;
 import com.assemblette.assemblette_backend.entity.Deputy;
 import com.assemblette.assemblette_backend.exception.ResourceNotFoundException;
-import com.assemblette.assemblette_backend.mapper.DeputyMapper;
 import com.assemblette.assemblette_backend.repository.DeputyRepository;
 import com.assemblette.assemblette_backend.service.DeputyService;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AllArgsConstructor;
@@ -26,42 +23,36 @@ public class DeputyServiceImpl implements DeputyService {
     private DeputyRepository deputyRepository;
 
     @Override
-    public DeputyDto createDeputy(DeputyDto deputyDto) {
+    public Deputy createDeputy(Deputy deputy) {
 
-        Deputy deputy = DeputyMapper.mapToDeputy((deputyDto));
         Deputy savedDeputy = deputyRepository.save(deputy);
-        return DeputyMapper.mapToDeputyDto(savedDeputy);
+        return savedDeputy;
     }
 
     @Override
-    public DeputyDto getDeputyById(Long deputyId) {
+    public Deputy getDeputyById(Long deputyId) {
         Deputy deputy = deputyRepository.findById(deputyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Deputy does not exist with given id : " + deputyId));
-        return DeputyMapper.mapToDeputyDto(deputy);
+        return deputy;
     }
 
     @Override
-    public List<DeputyDto> getAllDeputies() {
+    public List<Deputy> getAllDeputies() {
         List<Deputy> deputies = deputyRepository.findAll();
-        return deputies.stream().map((deputy) -> DeputyMapper.mapToDeputyDto(deputy)).collect(Collectors.toList());
+        return deputies;
     }
 
     @Override
-    public DeputyDto updateDeputy(Long deputyId, DeputyDto deputyDto) {
-        Deputy deputy = deputyRepository.findById(deputyId)
+    public Deputy updateDeputy(Long deputyId, Deputy deputy) {
+        Deputy currentDeputy = deputyRepository.findById(deputyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Deputy does not exist with given id : " + deputyId));
 
-        deputy.setFirstName(deputyDto.getFirstName());
-        deputy.setLastName(deputyDto.getLastName());
-        deputy.setRegion(deputyDto.getRegion());
-        deputy.setDepartment(deputyDto.getDepartment());
-        deputy.setConstituencyNumber(deputyDto.getConstituencyNumber());
-        deputy.setProfession(deputyDto.getProfession());
-        deputy.setPoliticalGroupFull(deputyDto.getPoliticalGroupFull());
-        deputy.setPoliticalGroupAbbreviated(deputyDto.getPoliticalGroupAbbreviated());
+        currentDeputy.setFirstName(deputy.getFirstName());
+        currentDeputy.setLastName(deputy.getLastName());
+        currentDeputy.setProfession(deputy.getProfession());
 
-        Deputy updatedDeputy = deputyRepository.save(deputy);
-        return DeputyMapper.mapToDeputyDto(updatedDeputy);
+        Deputy updatedDeputy = deputyRepository.save(currentDeputy);
+        return updatedDeputy;
     }
 
     @Override
@@ -71,28 +62,65 @@ public class DeputyServiceImpl implements DeputyService {
         deputyRepository.deleteById(deputyId);
     }
 
+    // @Override
+    // public void addDeputiesFromResourcesFile(String fileName) {
+    // ObjectMapper objectMapper = new ObjectMapper();
+    // try {
+    // ClassPathResource resource = new ClassPathResource(fileName);
+    // InputStream inputStream = resource.getInputStream();
+
+    // List<DeputyJsonDto> deputys = objectMapper.readValue(
+    // inputStream,
+    // new TypeReference<List<DeputyJsonDto>>() {
+    // });
+
+    // List<Deputy> deputies = deputys.stream()
+    // .map(DeputyMapper::mapToDeputy)
+    // .collect(Collectors.toList());
+
+    // deputyRepository.saveAll(deputies);
+
+    // System.out.println("Deputies successfully added from file: " + fileName);
+    // } catch (Exception e) {
+    // throw new RuntimeException("Failed to add deputies from JSON file: " +
+    // e.getMessage());
+    // }
+    // }
+
     @Override
-    public void addDeputiesFromResourcesFile(String fileName) {
+    public void addDeputiesFromResourcesFolder(String folderName) {
         ObjectMapper objectMapper = new ObjectMapper();
+        Resource[] deputiesResources;
+
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try {
-            ClassPathResource resource = new ClassPathResource(fileName);
-            InputStream inputStream = resource.getInputStream();
-
-            List<DeputyJsonDto> deputyDtos = objectMapper.readValue(
-                    inputStream,
-                    new TypeReference<List<DeputyJsonDto>>() {
-                    });
-
-            List<Deputy> deputies = deputyDtos.stream()
-                    .map(DeputyMapper::mapToDeputy)
-                    .collect(Collectors.toList());
-
-            deputyRepository.saveAll(deputies);
-
-            System.out.println("Deputies successfully added from file: " + fileName);
+            deputiesResources = resolver.getResources(folderName + "/*.json");
         } catch (Exception e) {
-            throw new RuntimeException("Failed to add deputies from JSON file: " + e.getMessage());
+            throw new RuntimeException("Failed to retrieve deputies json files : " + e.getMessage());
+        }
+
+        for (Resource deputyFile : deputiesResources) {
+            try {
+                InputStream inputStream = deputyFile.getInputStream();
+
+                JsonNode rootNode = objectMapper.readTree(inputStream);
+
+                String deputyId = rootNode.get("acteur").get("uid").get("#text").asText();
+                JsonNode etatCivil = rootNode.get("acteur").get("etatCivil");
+                JsonNode professsion = rootNode.get("acteur").get("profession");
+
+                Deputy deputy = Deputy.builder()
+                        .id(deputyId)
+                        .firstName(etatCivil.get("ident").get("prenom").asText())
+                        .lastName(etatCivil.get("ident").get("nom").asText())
+                        .profession(professsion.get("libelleCourant").asText())
+                        .build();
+                deputyRepository.save(deputy);
+                System.out.println("Deputy successfully added from file: " + deputyFile.getFilename());
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Failed to add deputy from JSON file: " + deputyFile.getFilename() + e.getMessage());
+            }
         }
     }
-
 }

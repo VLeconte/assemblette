@@ -21,11 +21,11 @@ const votes = reactive<{
   isLoading: boolean
 }>({
   data: new Map([
-    ["nonVotants", []],
+    ["nonVotant", []],
     ["pour", []],
     ["contre", []],
-    ["abstentions", []],
-    ["nonVotantsVolontaires", []],
+    ["abstention", []],
+    ["nonVotantVolontaire", []],
   ]),
   isLoading: true
 });
@@ -53,7 +53,7 @@ onMounted(
       <i class="text-sm text-gray-500 pi pi-calendar-minus"></i>
       <p class="text-sm text-gray-500 p-0">{{ ballot.ballotDate }}</p>
     </div>
-    <div class="flex flex-wrap justify-center">
+    <div class="flex flex-row flex-wrap justify-around gap-5">
       <VotesColumn v-for="[key, value] of votes.data" :key="key" :votes="value" :name=key />
     </div>
   </div>

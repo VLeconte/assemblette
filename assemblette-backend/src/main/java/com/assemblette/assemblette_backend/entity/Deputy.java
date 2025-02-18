@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Deputy {
     @Id
-    private Long id;
+    private String id;
 
     @Column(nullable = false)
     private String firstName;
@@ -25,10 +25,5 @@ public class Deputy {
     @Column(nullable = false)
     private String lastName;
 
-    private String region;
-    private String department;
-    private int constituencyNumber;
     private String profession;
-    private String politicalGroupFull;
-    private String politicalGroupAbbreviated;
 }

@@ -2,18 +2,18 @@ package com.assemblette.assemblette_backend.service;
 
 import java.util.List;
 
-import com.assemblette.assemblette_backend.dto.BallotDto;
+import com.assemblette.assemblette_backend.entity.Ballot;
 
 public interface BallotService {
-    BallotDto createBallot(BallotDto ballotDto);
+    Ballot createBallot(Ballot ballot);
 
-    BallotDto getBallotById(String ballotId);
+    Ballot getBallotById(String ballotId);
 
-    List<BallotDto> getAllBallots();
+    List<Ballot> getAllBallots();
 
-    BallotDto updateBallot(String ballotId, BallotDto ballotDto);
+    Ballot updateBallot(String ballotId, Ballot ballot);
 
     void deleteBallotById(String ballotId);
 
-    void addBallotsFromResourcesFile(String folderName);
+    void addBallotsFromResourcesFolder(String folderName);
 }

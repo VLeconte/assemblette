@@ -2,18 +2,18 @@ package com.assemblette.assemblette_backend.service;
 
 import java.util.List;
 
-import com.assemblette.assemblette_backend.dto.DeputyDto;
+import com.assemblette.assemblette_backend.entity.Deputy;
 
 public interface DeputyService {
-    DeputyDto createDeputy(DeputyDto deputyDto);
+    Deputy createDeputy(Deputy deputy);
 
-    DeputyDto getDeputyById(Long deputyId);
+    Deputy getDeputyById(Long deputyId);
 
-    List<DeputyDto> getAllDeputies();
+    List<Deputy> getAllDeputies();
 
-    DeputyDto updateDeputy(Long deputyId, DeputyDto deputyDto);
+    Deputy updateDeputy(Long deputyId, Deputy deputy);
 
     void deleteDeputyById(Long deputyId);
 
-    void addDeputiesFromResourcesFile(String fileName);
+    void addDeputiesFromResourcesFolder(String folderName);
 }
