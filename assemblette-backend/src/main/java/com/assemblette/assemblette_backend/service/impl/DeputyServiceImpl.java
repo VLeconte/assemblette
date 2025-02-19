@@ -30,7 +30,7 @@ public class DeputyServiceImpl implements DeputyService {
     }
 
     @Override
-    public Deputy getDeputyById(Long deputyId) {
+    public Deputy getDeputyById(String deputyId) {
         Deputy deputy = deputyRepository.findById(deputyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Deputy does not exist with given id : " + deputyId));
         return deputy;
@@ -43,7 +43,7 @@ public class DeputyServiceImpl implements DeputyService {
     }
 
     @Override
-    public Deputy updateDeputy(Long deputyId, Deputy deputy) {
+    public Deputy updateDeputy(String deputyId, Deputy deputy) {
         Deputy currentDeputy = deputyRepository.findById(deputyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Deputy does not exist with given id : " + deputyId));
 
@@ -56,36 +56,11 @@ public class DeputyServiceImpl implements DeputyService {
     }
 
     @Override
-    public void deleteDeputyById(Long deputyId) {
+    public void deleteDeputyById(String deputyId) {
         deputyRepository.findById(deputyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Deputy does not exist with given id : " + deputyId));
         deputyRepository.deleteById(deputyId);
     }
-
-    // @Override
-    // public void addDeputiesFromResourcesFile(String fileName) {
-    // ObjectMapper objectMapper = new ObjectMapper();
-    // try {
-    // ClassPathResource resource = new ClassPathResource(fileName);
-    // InputStream inputStream = resource.getInputStream();
-
-    // List<DeputyJsonDto> deputys = objectMapper.readValue(
-    // inputStream,
-    // new TypeReference<List<DeputyJsonDto>>() {
-    // });
-
-    // List<Deputy> deputies = deputys.stream()
-    // .map(DeputyMapper::mapToDeputy)
-    // .collect(Collectors.toList());
-
-    // deputyRepository.saveAll(deputies);
-
-    // System.out.println("Deputies successfully added from file: " + fileName);
-    // } catch (Exception e) {
-    // throw new RuntimeException("Failed to add deputies from JSON file: " +
-    // e.getMessage());
-    // }
-    // }
 
     @Override
     public void addDeputiesFromResourcesFolder(String folderName) {

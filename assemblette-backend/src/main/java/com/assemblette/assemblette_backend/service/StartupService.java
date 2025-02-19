@@ -17,11 +17,16 @@ public class StartupService {
     @Autowired
     private VoteService voteService;
 
+    @Autowired
+    private AuthorityService authorityService;
+
     @PostConstruct
     public void startup() {
-        deputyService.addDeputiesFromResourcesFolder(
-                "tempForDatabase/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json/json/acteur");
-        ballotService.addBallotsFromResourcesFolder("tempForDatabase/Scrutins/json");
-        voteService.addVotesFromResourcesFolder("tempForDatabase/Scrutins/json");
+        authorityService.addAuthoritysFromResourcesFolder(
+                "tempForDatabase/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json/json/organe");
+        // deputyService.addDeputiesFromResourcesFolder(
+        // "tempForDatabase/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json/json/acteur");
+        // ballotService.addBallotsFromResourcesFolder("tempForDatabase/Scrutins/json");
+        // voteService.addVotesFromResourcesFolder("tempForDatabase/Scrutins/json");
     }
 }

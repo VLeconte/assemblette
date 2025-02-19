@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.assemblette.assemblette_backend.entity.Deputy;
 
-public interface DeputyRepository extends JpaRepository<Deputy, Long> {
+public interface DeputyRepository extends JpaRepository<Deputy, String> {
 }

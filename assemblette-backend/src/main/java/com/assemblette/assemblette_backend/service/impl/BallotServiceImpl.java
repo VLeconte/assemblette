@@ -7,7 +7,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
-import com.assemblette.assemblette_backend.dto.BallotJsonDto;
+import com.assemblette.assemblette_backend.dto.BallotJson;
 import com.assemblette.assemblette_backend.entity.Ballot;
 import com.assemblette.assemblette_backend.exception.ResourceNotFoundException;
 import com.assemblette.assemblette_backend.mapper.BallotMapper;
@@ -79,9 +79,9 @@ public class BallotServiceImpl implements BallotService {
                 InputStream inputStream = ballotFile.getInputStream();
 
                 JsonNode rootNode = objectMapper.readTree(inputStream);
-                BallotJsonDto ballotJsonDto = objectMapper.treeToValue(rootNode.get("scrutin"), BallotJsonDto.class);
+                BallotJson ballotJson = objectMapper.treeToValue(rootNode.get("scrutin"), BallotJson.class);
 
-                ballotRepository.save(BallotMapper.mapToBallot(ballotJsonDto));
+                ballotRepository.save(BallotMapper.mapToBallot(ballotJson));
 
                 System.out.println("Ballot successfully added from file: " + ballotFile.getFilename());
             } catch (Exception e) {

@@ -7,13 +7,13 @@ import com.assemblette.assemblette_backend.entity.Deputy;
 public interface DeputyService {
     Deputy createDeputy(Deputy deputy);
 
-    Deputy getDeputyById(Long deputyId);
+    Deputy getDeputyById(String deputyId);
 
     List<Deputy> getAllDeputies();
 
-    Deputy updateDeputy(Long deputyId, Deputy deputy);
+    Deputy updateDeputy(String deputyId, Deputy deputy);
 
-    void deleteDeputyById(Long deputyId);
+    void deleteDeputyById(String deputyId);
 
     void addDeputiesFromResourcesFolder(String folderName);
 }

@@ -36,7 +36,7 @@ public class DeputyController {
 
     // Build Get Deputy REST API
     @GetMapping("{id}")
-    public ResponseEntity<Deputy> getDeputyById(@PathVariable("id") Long deputyId) {
+    public ResponseEntity<Deputy> getDeputyById(@PathVariable("id") String deputyId) {
         Deputy deputy = deputyService.getDeputyById(deputyId);
         return ResponseEntity.ok(deputy);
     }
@@ -50,14 +50,14 @@ public class DeputyController {
 
     // Build Update Deputy REST API
     @PutMapping("{id}")
-    public ResponseEntity<Deputy> updateDeputy(@PathVariable("id") Long deputyId, @RequestBody Deputy deputy) {
+    public ResponseEntity<Deputy> updateDeputy(@PathVariable("id") String deputyId, @RequestBody Deputy deputy) {
         Deputy updatedDeputy = deputyService.updateDeputy(deputyId, deputy);
         return ResponseEntity.ok(updatedDeputy);
     }
 
     // Build Delete Deputy REST API
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteDeputyById(@PathVariable("id") Long deputyId) {
+    public ResponseEntity<String> deleteDeputyById(@PathVariable("id") String deputyId) {
         deputyService.deleteDeputyById(deputyId);
         return ResponseEntity.ok("Deputy deleted successfully");
     }

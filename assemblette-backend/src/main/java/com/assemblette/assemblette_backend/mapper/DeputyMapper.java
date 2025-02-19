@@ -1,14 +1,14 @@
 package com.assemblette.assemblette_backend.mapper;
 
-import com.assemblette.assemblette_backend.dto.DeputyJsonDto;
+import com.assemblette.assemblette_backend.dto.DeputyJson;
 import com.assemblette.assemblette_backend.entity.Deputy;
 
 public class DeputyMapper {
-    public static Deputy mapToDeputy(DeputyJsonDto deputyJsonDto) {
+    public static Deputy mapToDeputy(DeputyJson deputyJson) {
         return new Deputy(
-                deputyJsonDto.getId(),
-                deputyJsonDto.getFirstName(),
-                deputyJsonDto.getLastName(),
-                deputyJsonDto.getProfession());
+                deputyJson.getId(),
+                deputyJson.getFirstName(),
+                deputyJson.getLastName(),
+                deputyJson.getProfession());
     }
 }

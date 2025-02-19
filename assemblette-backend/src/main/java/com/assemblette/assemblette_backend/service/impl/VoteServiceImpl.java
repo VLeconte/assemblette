@@ -43,7 +43,7 @@ public class VoteServiceImpl implements VoteService {
     }
 
     @Override
-    public List<Vote> getAllVotes(String ballotId, String state) {
+    public List<Vote> getAllVotes() {
         List<Vote> votes = voteRepository.findAll();
         return votes;
     }

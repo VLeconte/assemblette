@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BallotJsonDto {
+public class BallotJson {
     @JsonProperty("uid")
     private String id;
     @JsonProperty("titre")

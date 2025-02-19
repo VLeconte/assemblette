@@ -47,7 +47,7 @@ public class VoteController {
     public ResponseEntity<List<Vote>> getAllVotes(
             @RequestParam(required = false) String ballotId,
             @RequestParam(required = false) String state) {
-        List<Vote> votesDto = voteService.getAllVotes(ballotId, state);
+        List<Vote> votesDto = voteService.getAllVotes();
         return ResponseEntity.ok(votesDto);
     }
 

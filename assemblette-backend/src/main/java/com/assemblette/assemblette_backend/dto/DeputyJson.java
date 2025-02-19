@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeputyJsonDto {
+public class DeputyJson {
     @JsonProperty("identifiant")
     private String id;
     @JsonProperty("Prénom")
