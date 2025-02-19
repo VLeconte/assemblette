@@ -1,6 +1,8 @@
 package com.assemblette.assemblette_backend.service.impl;
 
+import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.core.io.Resource;
@@ -8,6 +10,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
 import com.assemblette.assemblette_backend.entity.Deputy;
+import com.assemblette.assemblette_backend.entity.Vote;
 import com.assemblette.assemblette_backend.exception.ResourceNotFoundException;
 import com.assemblette.assemblette_backend.repository.DeputyRepository;
 import com.assemblette.assemblette_backend.service.DeputyService;
@@ -69,13 +72,14 @@ public class DeputyServiceImpl implements DeputyService {
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try {
-            deputiesResources = resolver.getResources(folderName + "/*.json");
+            deputiesResources = resolver.getResources(folderName + File.separator + "*.json");
         } catch (Exception e) {
             throw new RuntimeException("Failed to retrieve deputies json files : " + e.getMessage());
         }
+        try {
+            List<Deputy> deputies = new ArrayList<Deputy>();
+            for (Resource deputyFile : deputiesResources) {
 
-        for (Resource deputyFile : deputiesResources) {
-            try {
                 InputStream inputStream = deputyFile.getInputStream();
 
                 JsonNode rootNode = objectMapper.readTree(inputStream);
@@ -90,12 +94,14 @@ public class DeputyServiceImpl implements DeputyService {
                         .lastName(etatCivil.get("ident").get("nom").asText())
                         .profession(professsion.get("libelleCourant").asText())
                         .build();
-                deputyRepository.save(deputy);
-                System.out.println("Deputy successfully added from file: " + deputyFile.getFilename());
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "Failed to add deputy from JSON file: " + deputyFile.getFilename() + e.getMessage());
+                deputies.add(deputy);
             }
+            deputyRepository.saveAll(deputies);
+            System.out.println(deputies.size() + " deputies successfully added from folder: " + folderName);
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to add deputies from JSON fodler: " + folderName + e.getMessage() + e.getStackTrace()[0]);
         }
+
     }
 }

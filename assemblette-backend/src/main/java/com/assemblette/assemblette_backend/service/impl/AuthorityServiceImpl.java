@@ -1,6 +1,8 @@
 package com.assemblette.assemblette_backend.service.impl;
 
+import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.core.io.Resource;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.assemblette.assemblette_backend.dto.AuthorityJson;
 import com.assemblette.assemblette_backend.entity.Authority;
+import com.assemblette.assemblette_backend.entity.Ballot;
 import com.assemblette.assemblette_backend.exception.ResourceNotFoundException;
 import com.assemblette.assemblette_backend.mapper.AuthorityMapper;
 import com.assemblette.assemblette_backend.repository.AuthorityRepository;
@@ -75,13 +78,15 @@ public class AuthorityServiceImpl implements AuthorityService {
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try {
-            authoritiesResources = resolver.getResources(folderName + "/*.json");
+            authoritiesResources = resolver.getResources(folderName + File.separator + "*.json");
         } catch (Exception e) {
             throw new RuntimeException("Failed to retrieve authorities json files : " + e.getMessage());
         }
 
-        for (Resource authorityFile : authoritiesResources) {
-            try {
+        try {
+            List<Authority> authorities = new ArrayList<Authority>();
+            for (Resource authorityFile : authoritiesResources) {
+
                 InputStream inputStream = authorityFile.getInputStream();
 
                 JsonNode rootNode = objectMapper.readTree(inputStream);
@@ -89,17 +94,15 @@ public class AuthorityServiceImpl implements AuthorityService {
                 AuthorityJson authorityJson = objectMapper.treeToValue(rootNode.get("organe"), AuthorityJson.class);
                 if (authorityJson.getAuthorityType().equals("GP")
                         || authorityJson.getAuthorityType().equals("ASSEMBLEE")) {
-                    authorityRepository.save(AuthorityMapper.mapToAuthority(authorityJson));
-                    System.out.println("Authority successfully added from file: " + authorityFile.getFilename());
-                } else {
-                    // System.out
-                    // .println("Authority not added (filtered by authorityType): " +
-                    // authorityFile.getFilename());
+                    authorities.add(AuthorityMapper.mapToAuthority(authorityJson));
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "Failed to add authority from JSON file: " + authorityFile.getFilename() + e.getMessage());
+
             }
+            authorityRepository.saveAll(authorities);
+            System.out.println(authorities.size() + " authorities successfully added from folder: " + folderName);
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to add authorities from folder: " + folderName + e.getMessage() + e.getStackTrace()[0]);
         }
     }
 }

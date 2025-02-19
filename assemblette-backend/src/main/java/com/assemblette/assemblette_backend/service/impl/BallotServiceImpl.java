@@ -1,6 +1,8 @@
 package com.assemblette.assemblette_backend.service.impl;
 
+import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.core.io.Resource;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.assemblette.assemblette_backend.dto.BallotJson;
 import com.assemblette.assemblette_backend.entity.Ballot;
+import com.assemblette.assemblette_backend.entity.Deputy;
 import com.assemblette.assemblette_backend.exception.ResourceNotFoundException;
 import com.assemblette.assemblette_backend.mapper.BallotMapper;
 import com.assemblette.assemblette_backend.repository.BallotRepository;
@@ -69,24 +72,25 @@ public class BallotServiceImpl implements BallotService {
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try {
-            ballotsResources = resolver.getResources(folderName + "/*.json");
+            ballotsResources = resolver.getResources(folderName + File.separator + "*.json");
         } catch (Exception e) {
             throw new RuntimeException("Failed to retrieve ballots json files : " + e.getMessage());
         }
+        try {
+            List<Ballot> ballots = new ArrayList<Ballot>();
+            for (Resource ballotFile : ballotsResources) {
 
-        for (Resource ballotFile : ballotsResources) {
-            try {
                 InputStream inputStream = ballotFile.getInputStream();
 
                 JsonNode rootNode = objectMapper.readTree(inputStream);
                 BallotJson ballotJson = objectMapper.treeToValue(rootNode.get("scrutin"), BallotJson.class);
-
-                ballotRepository.save(BallotMapper.mapToBallot(ballotJson));
-
-                System.out.println("Ballot successfully added from file: " + ballotFile.getFilename());
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to add ballot from JSON file: " + e.getMessage());
+                ballots.add(BallotMapper.mapToBallot(ballotJson));
             }
+            ballotRepository.saveAll(ballots);
+            System.out.println(ballots.size() + " ballots successfully added from folder: " + folderName);
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to add ballots from JSON folder: " + e.getMessage() + e.getStackTrace()[0]);
         }
     }
 

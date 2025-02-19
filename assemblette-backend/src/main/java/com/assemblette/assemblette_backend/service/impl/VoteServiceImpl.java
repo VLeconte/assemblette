@@ -1,5 +1,6 @@
 package com.assemblette.assemblette_backend.service.impl;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,6 +20,7 @@ import com.assemblette.assemblette_backend.repository.VoteRepository;
 import com.assemblette.assemblette_backend.service.VoteService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import lombok.AllArgsConstructor;
 
@@ -75,13 +77,14 @@ public class VoteServiceImpl implements VoteService {
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try {
-            ballotsResources = resolver.getResources(folderName + "/*.json");
+            ballotsResources = resolver.getResources(folderName + File.separator + "*.json");
         } catch (Exception e) {
             throw new RuntimeException("Failed to retrieve ballots json files : " + e.getMessage());
         }
 
-        for (Resource ballotFile : ballotsResources) {
-            try {
+        try {
+            List<Vote> votes = new ArrayList<Vote>();
+            for (Resource ballotFile : ballotsResources) {
                 InputStream inputStream = ballotFile.getInputStream();
                 Map<String, String> statePlurialToSingular = Map.of(
                         "nonVotants", "nonVotant",
@@ -91,7 +94,6 @@ public class VoteServiceImpl implements VoteService {
 
                 JsonNode rootNode = objectMapper.readTree(inputStream);
 
-                List<Vote> votes = new ArrayList<Vote>();
                 String ballotId = rootNode.get("scrutin").get("uid").asText();
                 String voteState;
                 for (JsonNode groupNode : rootNode
@@ -107,21 +109,11 @@ public class VoteServiceImpl implements VoteService {
                         voteState = statePlurialToSingular.get(entry.getKey());
 
                         if (!entry.getValue().isNull()) {
-                            if (entry.getValue().get("votant").isArray()) {
-                                for (JsonNode deputy : entry.getValue().get("votant")) {
-                                    votes.add(Vote
-                                            .builder()
-                                            .ballot(Ballot
-                                                    .builder()
-                                                    .id(ballotId)
-                                                    .build())
-                                            .deputy(Deputy.builder()
-                                                    .id(deputy.get("acteurRef").asText())
-                                                    .build())
-                                            .state(voteState).build());
-                                }
-                            } else {
-                                JsonNode deputy = entry.getValue().get("votant");
+                            JsonNode votant = entry.getValue().get("votant");
+                            if (!votant.isArray()) {
+                                votant = JsonNodeFactory.instance.arrayNode().add(votant);
+                            }
+                            for (JsonNode deputy : votant) {
                                 votes.add(Vote
                                         .builder()
                                         .ballot(Ballot
@@ -136,12 +128,12 @@ public class VoteServiceImpl implements VoteService {
                         }
                     }
                 }
-                voteRepository.saveAll(votes);
-                System.out.println("Votes successfully added from file: " + ballotFile.getFilename());
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "Failed to add votes from JSON file: " + ballotFile.getFilename() + e.getMessage());
             }
+            voteRepository.saveAll(votes);
+            System.out.println(votes.size() + " votes successfully added from folder: " + folderName);
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to add votes from folder: " + folderName + e.getMessage() + e.getStackTrace()[0]);
         }
     }
 }
