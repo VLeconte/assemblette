@@ -2,26 +2,15 @@ package com.assemblette.assemblette_backend.service.impl;
 
 import java.io.File;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
-import com.assemblette.assemblette_backend.dto.BallotJson;
 import com.assemblette.assemblette_backend.dto.MandateJson;
-import com.assemblette.assemblette_backend.entity.Authority;
-import com.assemblette.assemblette_backend.entity.Ballot;
-import com.assemblette.assemblette_backend.entity.Deputy;
 import com.assemblette.assemblette_backend.entity.Mandate;
-import com.assemblette.assemblette_backend.entity.Vote;
 import com.assemblette.assemblette_backend.exception.ResourceNotFoundException;
 import com.assemblette.assemblette_backend.mapper.MandateMapper;
 import com.assemblette.assemblette_backend.repository.MandateRepository;

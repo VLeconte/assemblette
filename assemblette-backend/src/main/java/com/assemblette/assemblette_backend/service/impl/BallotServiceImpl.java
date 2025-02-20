@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.assemblette.assemblette_backend.dto.BallotJson;
 import com.assemblette.assemblette_backend.entity.Ballot;
-import com.assemblette.assemblette_backend.entity.Deputy;
 import com.assemblette.assemblette_backend.exception.ResourceNotFoundException;
 import com.assemblette.assemblette_backend.mapper.BallotMapper;
 import com.assemblette.assemblette_backend.repository.BallotRepository;

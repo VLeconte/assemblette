@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { type Deputy } from '@/entities/deputy';
+import type { Mandate } from '@/entities/mandate';
 import type { PropType } from 'vue';
 defineProps({
   deputy: {
     type: Object as PropType<Deputy>,
+    required: true
+  },
+  mandates: {
+    type: Object as PropType<Mandate[]>,
     required: true
   }
 });
@@ -47,7 +52,7 @@ const getPoliticalColor = function (politicalGroup: string) {
     </div>
     <div class="flex flex-row gap-x-2 items-baseline">
       <i :class="['text-sm', 'pi', 'pi-building-columns', getPoliticalColor('TO FILL')]"></i>
-      <p class="text-sm text-gray-500 p-0">{{ "To fill groupe politique" }}</p>
+      <p class="text-sm text-gray-500 p-0">{{ mandates[0].startDate }}</p>
     </div>
     <div class="flex flex-row gap-x-2 items-baseline">
       <i class="text-sm pi pi-map-marker text-orange-300"></i>

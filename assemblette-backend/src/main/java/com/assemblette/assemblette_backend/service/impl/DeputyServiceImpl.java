@@ -9,13 +9,16 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
+import com.assemblette.assemblette_backend.dto.MandateJson;
 import com.assemblette.assemblette_backend.entity.Deputy;
-import com.assemblette.assemblette_backend.entity.Vote;
+import com.assemblette.assemblette_backend.entity.Mandate;
 import com.assemblette.assemblette_backend.exception.ResourceNotFoundException;
+import com.assemblette.assemblette_backend.mapper.MandateMapper;
 import com.assemblette.assemblette_backend.repository.DeputyRepository;
 import com.assemblette.assemblette_backend.service.DeputyService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import lombok.AllArgsConstructor;
 
@@ -94,7 +97,19 @@ public class DeputyServiceImpl implements DeputyService {
                         .lastName(etatCivil.get("ident").get("nom").asText())
                         .profession(professsion.get("libelleCourant").asText())
                         .build();
-                deputies.add(deputy);
+                JsonNode mandat = rootNode
+                        .get("acteur")
+                        .get("mandats")
+                        .get("mandat");
+                if (!mandat.isArray()) {
+                    mandat = JsonNodeFactory.instance.arrayNode().add(mandat);
+                }
+                for (JsonNode mandatNode : mandat) {
+                    if (mandatNode.get("typeOrgane").asText().equals("ASSEMBLEE")) {
+                        deputies.add(deputy);
+                        break;
+                    }
+                }
             }
             deputyRepository.saveAll(deputies);
             System.out.println(deputies.size() + " deputies successfully added from folder: " + folderName);
