@@ -3,4 +3,5 @@ export interface Authority {
   authorityType: string
   label: string
   labelAbbreviated: string
+  associatedColor: string
 }
