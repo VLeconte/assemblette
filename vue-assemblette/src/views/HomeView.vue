@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, onMounted } from 'vue';
 import DeputyCard from '@/components/DeputyCard.vue';
 import { type Deputy } from '@/entities/deputy';
 import DeputiesService from '@/services/deputies-service';
-import MandatesService from '@/services/mandates-service';
-import type { Mandate } from '@/entities/mandate';
-import _ from 'lodash';
+import { useMainStore } from '@/store/store';
 
+const store = useMainStore()
 const deputiesService = new DeputiesService();
-const mandatesService = new MandatesService();
 
 const deputies = reactive<{
   data: Deputy[],
@@ -17,28 +15,28 @@ const deputies = reactive<{
   data: [],
   isLoading: true
 });
-const mandatesByDeputies = ref<Record<string, Mandate[]>>({})
 
 onMounted(
   async () => {
     try {
-      console.time("Loading deputies")
       deputies.data = await deputiesService.getDeputies()
-      const mandates: Mandate[] = await mandatesService.getMandates()
-      mandatesByDeputies.value = _.groupBy(mandates, (mandate) => mandate.deputy.id)
       deputies.isLoading = false
-      console.timeLog("Loading deputies")
     } catch (error) {
       console.error('Error fetching deputies', error)
     }
   }
 );
 
+onMounted(
+  store.getMandatesByDeputies
+);
+
 </script>
 
 <template>
-  <div v-if="!deputies.isLoading" class="w-screen flex flex-wrap gap-8 p-4 justify-center">
+  <div v-if="!deputies.isLoading && !store.mandatesByDeputies.isLoading"
+    class="w-screen flex flex-wrap gap-8 p-4 justify-center">
     <DeputyCard v-for="deputy in deputies.data" :key="deputy.id" :deputy="deputy"
-      :mandates="mandatesByDeputies[deputy.id]" />
+      :mandates="store.mandatesByDeputies.data[deputy.id]" />
   </div>
 </template>

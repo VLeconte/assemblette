@@ -13,6 +13,10 @@ const props = defineProps({
   ballot: {
     type: Object as PropType<Ballot>,
     required: true
+  },
+  mandatesByDeputies: {
+    type: Object as PropType<Ballot>,
+    required: true
   }
 });
 
