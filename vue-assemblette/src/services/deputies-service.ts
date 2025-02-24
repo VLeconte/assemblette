@@ -1,4 +1,6 @@
+import type { Deputy } from '@/entities/deputy'
 import axios from 'axios'
+import _ from 'lodash'
 
 const restDeputies = axios.create({
   // better still, use env vars to define your URLs
@@ -6,9 +8,14 @@ const restDeputies = axios.create({
 })
 
 export default class DeputiesService {
+  private static deputies: Deputy[]
   public getDeputies = async () => {
     try {
-      return (await restDeputies.get('')).data
+      if (_.isEmpty(DeputiesService.deputies)) {
+        return (await restDeputies.get('')).data
+      } else {
+        return DeputiesService.deputies
+      }
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         console.error(err.toJSON())

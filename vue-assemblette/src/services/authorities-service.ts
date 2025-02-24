@@ -1,3 +1,4 @@
+import type { Authority } from '@/entities/authority'
 import axios from 'axios'
 
 const restAuthorities = axios.create({
@@ -6,7 +7,7 @@ const restAuthorities = axios.create({
 })
 
 export default class AuthoritiesService {
-  public getAuthorities = async () => {
+  public getAuthorities = async (): Promise<Authority[]> => {
     try {
       return (await restAuthorities.get('')).data
     } catch (err: unknown) {

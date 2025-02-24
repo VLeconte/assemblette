@@ -21,6 +21,7 @@ onMounted(
   async () => {
     try {
       ballots.data = await ballotsService.getBallots()
+      ballots.data = _.reverse(_.sortBy(ballots.data, (ballot) => ballot.ballotDate))
       ballots.isLoading = false
     } catch (error) {
       console.error('Error fetching ballots', error)
@@ -34,7 +35,7 @@ const mandatesByDeputies = ref<Record<string, Mandate[]>>({})
 onMounted(
   async () => {
     try {
-      const mandates: Mandate[] = await mandatesService.getMandates()
+      const mandates = await mandatesService.getMandates()
       mandatesByDeputies.value = _.groupBy(mandates, (mandate) => mandate.deputy.id)
     } catch (error) {
       console.error('Error fetching mandates', error)
@@ -46,6 +47,6 @@ onMounted(
 
 <template>
   <div class="w-screen grid grid-cols-1 gap-8 p-4 justify-center">
-    <BallotCard v-for="ballot in ballots.data.slice(0, 3)" :key="ballot.id" :ballot="ballot" />
+    <BallotCard v-for="ballot in ballots.data.slice(0, 1)" :key="ballot.id" :ballot="ballot" />
   </div>
 </template>
