@@ -4,7 +4,6 @@ import BallotsService from '@/services/ballots-service';
 import { onMounted, reactive, type PropType } from 'vue';
 import VotesService from '@/services/votes-service';
 import type { Vote } from '@/entities/vote';
-import VotesColumn from './VotesColumn.vue';
 import type { Deputy } from '@/entities/deputy';
 import DeputiesService from '@/services/deputies-service';
 import type { Mandate } from '@/entities/mandate';
@@ -14,6 +13,7 @@ import DeputiesUtils from '@/utils/deputies-utils';
 import type { PoliticalGroupVotes } from '@/entities/political-group-votes';
 import AuthoritiesService from '@/services/authorities-service';
 import VotesUtils from '@/utils/votes-utils';
+import TableVotes from '@/components/TableVotes.vue';
 
 const ballotsService = new BallotsService();
 const votesService = new VotesService();
@@ -132,14 +132,11 @@ onMounted(
   <div class="grid grid-cols-1 gap-3 p-3 rounded-xl bg-white shadow-md outline outline-black/5">
     <div class="text-base text-gray-700">
       <p>{{ ballotsService.capitalizeFirstLetter(ballot.title) }}</p>
-      {{ tableVotesNumber }}
     </div>
     <div class="flex flex-row gap-x-2 items-baseline">
       <i class="text-sm text-gray-500 pi pi-calendar-minus"></i>
       <p class="text-sm text-gray-500 p-0">{{ ballot.ballotDate }}</p>
     </div>
-    <div class="flex flex-row flex-wrap justify-around gap-5">
-      <VotesColumn v-for="[key, value] of votes.data" :key="key" :votes="value" :name=key />
-    </div>
+    <TableVotes :political-groups-votes="tableVotesNumber.data" />
   </div>
 </template>
