@@ -1,7 +1,7 @@
 import type { Deputy } from '@/entities/deputy'
 import type { Mandate } from '@/entities/mandate'
 import _ from 'lodash'
-import MandatesUtil from './mandates-utils'
+import { getActiveMandatesForSpecificDate } from './mandates-utils'
 
 export default class DeputiesUtils {
   public static getActiveDeputiesByPGIdForSpecificDate(
@@ -11,10 +11,7 @@ export default class DeputiesUtils {
   ) {
     const mandatesByDeputyId = _.groupBy(mandates, (mandate) => mandate.deputy.id)
     const activeDeputies = _.filter(deputies, (deputy) => {
-      const activeMandates = MandatesUtil.getActiveMandatesForSpecificDate(
-        mandatesByDeputyId[deputy.id],
-        date,
-      )
+      const activeMandates = getActiveMandatesForSpecificDate(mandatesByDeputyId[deputy.id], date)
       const activeAssemblyMandates = _.filter(activeMandates, (mandate) => {
         return mandate.authority.authorityType === 'ASSEMBLEE'
       })
@@ -22,10 +19,7 @@ export default class DeputiesUtils {
     })
 
     return _.groupBy(activeDeputies, (deputy) => {
-      const activeMandates = MandatesUtil.getActiveMandatesForSpecificDate(
-        mandatesByDeputyId[deputy.id],
-        date,
-      )
+      const activeMandates = getActiveMandatesForSpecificDate(mandatesByDeputyId[deputy.id], date)
       const activePGMandates = _.filter(activeMandates, (mandate) => {
         return mandate.authority.authorityType === 'GP'
       })

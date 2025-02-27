@@ -2,11 +2,13 @@
 import { reactive, onMounted } from 'vue';
 import DeputyCard from '@/components/DeputyCard.vue';
 import { type Deputy } from '@/entities/deputy';
-import DeputiesService from '@/services/deputies-service';
-import { useMainStore } from '@/store/store';
+import { useDeputiesStore } from '@/store/store-deputies';
+import { useMandatesStore } from '@/store/store-mandates';
+import type { Mandate } from '@/entities/mandate';
 
-const store = useMainStore()
-const deputiesService = new DeputiesService();
+const deputiesStore = useDeputiesStore()
+const mandatesStore = useMandatesStore()
+
 
 const deputies = reactive<{
   data: Deputy[],
@@ -16,27 +18,29 @@ const deputies = reactive<{
   isLoading: true
 });
 
-onMounted(
-  async () => {
-    try {
-      deputies.data = await deputiesService.getDeputies()
-      deputies.isLoading = false
-    } catch (error) {
-      console.error('Error fetching deputies', error)
-    }
-  }
-);
+const mandatesByDeputies = reactive<{
+  data: Record<string, Mandate[]>,
+  isLoading: boolean
+}>({
+  data: {},
+  isLoading: true
+});
 
 onMounted(
-  store.getMandatesByDeputies
+  async () => {
+    deputies.data = await deputiesStore.getDeputies()
+    deputies.isLoading = false
+    mandatesByDeputies.data = await mandatesStore.getMandatesByDeputies()
+    mandatesByDeputies.isLoading = false
+  }
 );
 
 </script>
 
 <template>
-  <div v-if="!deputies.isLoading && !store.mandatesByDeputies.isLoading"
+  <div v-if="!deputies.isLoading && !mandatesByDeputies.isLoading"
     class="w-screen flex flex-wrap gap-8 p-4 justify-center">
     <DeputyCard v-for="deputy in deputies.data" :key="deputy.id" :deputy="deputy"
-      :mandates="store.mandatesByDeputies.data[deputy.id]" />
+      :mandates="mandatesByDeputies.data[deputy.id]" />
   </div>
 </template>

@@ -1,3 +1,4 @@
+import type { Mandate } from '@/entities/mandate'
 import axios from 'axios'
 
 const restMandates = axios.create({
@@ -6,7 +7,7 @@ const restMandates = axios.create({
 })
 
 export default class MandatesService {
-  public getMandates = async () => {
+  public getMandates = async (): Promise<Mandate[]> => {
     try {
       return (await restMandates.get('')).data
     } catch (err: unknown) {

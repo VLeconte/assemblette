@@ -9,13 +9,13 @@ const restDeputies = axios.create({
 
 export default class DeputiesService {
   private static deputies: Deputy[]
+
   public getDeputies = async () => {
     try {
       if (_.isEmpty(DeputiesService.deputies)) {
         return (await restDeputies.get('')).data
-      } else {
-        return DeputiesService.deputies
       }
+      return DeputiesService.deputies
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         console.error(err.toJSON())

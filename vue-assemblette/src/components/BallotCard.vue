@@ -1,23 +1,21 @@
 <script setup lang="ts">
 import { type Ballot } from '@/entities/ballot';
-import BallotsService from '@/services/ballots-service';
-import { onMounted, reactive, type PropType } from 'vue';
-import VotesService from '@/services/votes-service';
-import type { Vote } from '@/entities/vote';
-import type { Deputy } from '@/entities/deputy';
-import DeputiesService from '@/services/deputies-service';
-import type { Mandate } from '@/entities/mandate';
-import MandatesService from '@/services/mandates-service';
+import { onMounted, reactive, ref, type PropType } from 'vue';
 import _ from 'lodash'
 import DeputiesUtils from '@/utils/deputies-utils';
 import type { PoliticalGroupVotes } from '@/entities/political-group-votes';
-import AuthoritiesService from '@/services/authorities-service';
 import VotesUtils from '@/utils/votes-utils';
 import TableVotes from '@/components/TableVotes.vue';
+import { useVotesStore } from '@/store/store-votes';
+import { useAuthoritiesStore } from '@/store/store-authorities';
+import { useDeputiesStore } from '@/store/store-deputies';
+import { useMandatesStore } from '@/store/store-mandates';
+import { capitalizeFirstLetter } from '@/utils/mandates-utils';
 
-const ballotsService = new BallotsService();
-const votesService = new VotesService();
-const authoritiesService = new AuthoritiesService();
+const deputiesStore = useDeputiesStore()
+const votesStore = useVotesStore()
+const authoriesStore = useAuthoritiesStore()
+const mandatesStore = useMandatesStore()
 
 const props = defineProps({
   ballot: {
@@ -26,51 +24,12 @@ const props = defineProps({
   }
 });
 
-const votes = reactive<{
-  data: Map<string, Vote[]>
-  isLoading: boolean
-}>({
-  data: new Map([
-    ["nonVotant", []],
-    ["pour", []],
-    ["contre", []],
-    ["abstention", []],
-    ["nonVotantVolontaire", []],
-  ]),
-  isLoading: true
-});
+const showTable = ref(false);
 
-onMounted(
-  async () => {
-    try {
-      const allVotes: Vote[] = await votesService.getVotes()
-      votes.data.forEach((value: Vote[], key: string) => {
-        votes.data.set(key, allVotes.filter((vote) => vote.ballot.id === props.ballot.id && vote.state === key))
-      });
-    } catch (error) {
-      console.error('Error fetching votes', error)
-    }
-  }
-);
+const toggleShowTable = () => {
+  showTable.value = !showTable.value
+}
 
-const deputiesService = new DeputiesService();
-const deputies = reactive<{
-  data: Deputy[]
-  isLoading: boolean
-}>({
-  data: [],
-  isLoading: true
-});
-
-onMounted(
-  async () => {
-    deputies.data = await deputiesService.getDeputies()
-    deputies.isLoading = false
-
-  }
-);
-
-const mandatesService = new MandatesService();
 const tableVotesNumber = reactive<{
   data: PoliticalGroupVotes[]
   isLoading: boolean
@@ -81,13 +40,12 @@ const tableVotesNumber = reactive<{
 
 onMounted(
   async () => {
-    const deputies = await deputiesService.getDeputies()
-    const authorities = await authoritiesService.getAuthorities()
-    const mandates: Mandate[] = await mandatesService.getMandates()
-    const votes: Vote[] = await votesService.getVotes()
+    const deputies = await deputiesStore.getDeputies()
+    const authorities = await authoriesStore.getAuthorities()
+    const mandates = await mandatesStore.getMandates()
+    const votes = await votesStore.getVotes()
 
     const authoritiesById = _.groupBy(authorities, (authority) => authority.id)
-
     const ballotVotes = _.groupBy(votes, (vote) => vote.ballot.id)[props.ballot.id]
 
     const activeDeputiesByPGId = DeputiesUtils.getActiveDeputiesByPGIdForSpecificDate(
@@ -131,12 +89,18 @@ onMounted(
 <template>
   <div class="grid grid-cols-1 gap-3 p-3 rounded-xl bg-white shadow-md outline outline-black/5">
     <div class="text-base text-gray-700">
-      <p>{{ ballotsService.capitalizeFirstLetter(ballot.title) }}</p>
+      <p>{{ capitalizeFirstLetter(ballot.title) }}</p>
     </div>
     <div class="flex flex-row gap-x-2 items-baseline">
       <i class="text-sm text-gray-500 pi pi-calendar-minus"></i>
       <p class="text-sm text-gray-500 p-0">{{ ballot.ballotDate }}</p>
     </div>
-    <TableVotes :political-groups-votes="tableVotesNumber.data" />
+    <button @click="toggleShowTable" class="flex flex-row gap-x-2 items-baseline text-sm text-gray-500">
+      <i class="pi text-inherit" :class="showTable ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+      <div class="text-inherit">
+        <p>{{ showTable ? "Voir moins" : "Voir plus" }}</p>
+      </div>
+    </button>
+    <TableVotes v-if="showTable" :political-groups-votes="tableVotesNumber.data" />
   </div>
 </template>

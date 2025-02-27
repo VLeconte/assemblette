@@ -2,7 +2,7 @@
 import type { Vote } from '@/entities/vote';
 import { onMounted, type PropType } from 'vue';
 import DeputyCard from './DeputyCard.vue';
-import { useMainStore } from '@/store/store';
+import { useMainStore } from '@/store/store-mandates';
 
 const store = useMainStore()
 
