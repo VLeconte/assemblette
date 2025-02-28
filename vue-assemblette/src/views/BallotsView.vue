@@ -1,52 +1,44 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import BallotCard from '@/components/BallotCard.vue';
 import { type Ballot } from '@/entities/ballot';
-import BallotsService from '@/services/ballots-service';
-import MandatesService from '@/services/mandates-service';
-import type { Mandate } from '@/entities/mandate';
 import _ from 'lodash';
+import { useDeputiesStore } from '@/store/store-deputies';
+import { useVotesStore } from '@/store/store-votes';
+import { useAuthoritiesStore } from '@/store/store-authorities';
+import { useMandatesStore } from '@/store/store-mandates';
+import { useBallotsStore } from '@/store/store-ballots';
 
-const ballotsService = new BallotsService();
+const deputiesStore = useDeputiesStore()
+const votesStore = useVotesStore()
+const authoriesStore = useAuthoritiesStore()
+const mandatesStore = useMandatesStore()
+const ballotsStore = useBallotsStore()
 
-const ballots = reactive<{
-  data: Ballot[],
-  isLoading: boolean
-}>({
-  data: [],
-  isLoading: true
-});
+const ballotsOrdered = ref<Ballot[]>([])
 
-onMounted(
-  async () => {
-    try {
-      ballots.data = await ballotsService.getBallots()
-      ballots.data = _.reverse(_.sortBy(ballots.data, (ballot) => ballot.ballotDate))
-      ballots.isLoading = false
-    } catch (error) {
-      console.error('Error fetching ballots', error)
-    }
-  }
-);
-
-const mandatesService = new MandatesService();
-const mandatesByDeputies = ref<Record<string, Mandate[]>>({})
+const loadingData = ref(true)
 
 onMounted(
   async () => {
-    try {
-      const mandates = await mandatesService.getMandates()
-      mandatesByDeputies.value = _.groupBy(mandates, (mandate) => mandate.deputy.id)
-    } catch (error) {
-      console.error('Error fetching mandates', error)
-    }
+    await deputiesStore.getDeputies()
+    await authoriesStore.getAuthorities()
+    await mandatesStore.getMandates()
+    await votesStore.getVotes()
+    const ballots = await ballotsStore.getBallots()
+    ballotsOrdered.value = _.reverse(_.sortBy(ballots, (ballot) => ballot.ballotDate))
+    loadingData.value = false
   }
 );
 
 </script>
 
 <template>
-  <div class="w-screen grid grid-cols-1 gap-8 p-4 justify-center">
-    <BallotCard v-for="ballot in ballots.data.slice(0, 2)" :key="ballot.id" :ballot="ballot" />
+  <div v-if="loadingData" class="flex flex-row items-baseline justify-center gap-2 p-8">
+    <i class="text-xl text-gray-500 pi pi-spin pi-spinner"></i>
+    <p class="text-xl text-gray-500">Loading data</p>
+  </div>
+  <div v-else class="w-screen grid grid-cols-1 gap-8 p-4 justify-center">
+    <BallotCard v-for="ballot in ballotsOrdered.slice(0, 2)" :key="ballot.id" :ballot="ballot" />
   </div>
 </template>

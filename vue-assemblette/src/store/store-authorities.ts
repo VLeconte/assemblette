@@ -8,12 +8,12 @@ export const useAuthoritiesStore = defineStore('authorities', () => {
     // better still, use env vars to define your URLs
     baseURL: 'http://localhost:8080/api/authorities',
   })
-  const authorities: Authority[] = []
+  let authorities: Authority[] = []
 
   async function getAuthorities(): Promise<Authority[]> {
     try {
       if (_.isEmpty(authorities)) {
-        return (await restAuthorities.get('')).data
+        authorities = (await restAuthorities.get('')).data
       }
       return authorities
     } catch (err: unknown) {

@@ -40,6 +40,7 @@ const tableVotesNumber = reactive<{
 
 onMounted(
   async () => {
+    const startTime = performance.now()
     const deputies = await deputiesStore.getDeputies()
     const authorities = await authoriesStore.getAuthorities()
     const mandates = await mandatesStore.getMandates()
@@ -82,6 +83,8 @@ onMounted(
       }
       return politicalGroupVotes
     })
+    const endTime = performance.now()
+    console.log(endTime - startTime)
   }
 );
 </script>

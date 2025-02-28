@@ -8,12 +8,12 @@ export const useDeputiesStore = defineStore('deputies', () => {
     // better still, use env vars to define your URLs
     baseURL: 'http://localhost:8080/api/deputies',
   })
-  const deputies: Deputy[] = []
+  let deputies: Deputy[] = []
 
   async function getDeputies(): Promise<Deputy[]> {
     try {
       if (_.isEmpty(deputies)) {
-        return (await restDeputies.get('')).data
+        deputies = (await restDeputies.get('')).data
       }
       return deputies
     } catch (err: unknown) {

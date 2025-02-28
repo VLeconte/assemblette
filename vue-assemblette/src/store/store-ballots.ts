@@ -8,12 +8,12 @@ export const useBallotsStore = defineStore('ballots', () => {
     // better still, use env vars to define your URLs
     baseURL: 'http://localhost:8080/api/ballots',
   })
-  const ballots: Ballot[] = []
+  let ballots: Ballot[] = []
 
   async function getBallots() {
     try {
       if (_.isEmpty(ballots)) {
-        return (await restBallots.get('')).data
+        ballots = (await restBallots.get('')).data
       }
       return ballots
     } catch (err: unknown) {

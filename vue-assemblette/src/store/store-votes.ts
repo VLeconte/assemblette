@@ -8,12 +8,12 @@ export const useVotesStore = defineStore('votes', () => {
     // better still, use env vars to define your URLs
     baseURL: 'http://localhost:8080/api/votes',
   })
-  const votes: Vote[] = []
+  let votes: Vote[] = []
 
   async function getVotes(): Promise<Vote[]> {
     try {
       if (_.isEmpty(votes)) {
-        return (await restVotes.get('')).data
+        votes = (await restVotes.get('')).data
       }
       return votes
     } catch (err: unknown) {
