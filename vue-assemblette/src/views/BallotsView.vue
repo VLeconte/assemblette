@@ -8,6 +8,7 @@ import { useVotesStore } from '@/store/store-votes';
 import { useAuthoritiesStore } from '@/store/store-authorities';
 import { useMandatesStore } from '@/store/store-mandates';
 import { useBallotsStore } from '@/store/store-ballots';
+import Paginator from "primevue/paginator"
 
 const deputiesStore = useDeputiesStore()
 const votesStore = useVotesStore()
@@ -18,6 +19,7 @@ const ballotsStore = useBallotsStore()
 const ballotsOrdered = ref<Ballot[]>([])
 
 const loadingData = ref(true)
+const paginatorFirstRow = ref(0)
 
 onMounted(
   async () => {
@@ -39,6 +41,12 @@ onMounted(
     <p class="text-xl text-gray-500">Loading data</p>
   </div>
   <div v-else class="w-screen grid grid-cols-1 gap-8 p-4 justify-center">
-    <BallotCard v-for="ballot in ballotsOrdered.slice(0, 2)" :key="ballot.id" :ballot="ballot" />
+    <BallotCard v-for="ballot in ballotsOrdered.slice(paginatorFirstRow, paginatorFirstRow + 5)" :key="ballot.id"
+      :ballot="ballot" />
+    <Paginator v-model:first=paginatorFirstRow :rows="5" :totalRecords=ballotsOrdered.length :page-link-size="3"
+      :template="{
+        '640px': 'FirstPageLink PrevPageLink JumpToPageDropdown NextPageLink LastPageLink',
+        default: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink JumpToPageDropdown'
+      }"></Paginator>
   </div>
 </template>
