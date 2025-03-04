@@ -40,13 +40,12 @@ const tableVotesNumber = reactive<{
 
 onMounted(
   async () => {
-    const startTime = performance.now()
     const deputies = await deputiesStore.getDeputies()
     const authorities = await authoriesStore.getAuthorities()
     const mandates = await mandatesStore.getMandates()
     const votes = await votesStore.getVotes()
 
-    const authoritiesById = _.groupBy(authorities, (authority) => authority.id)
+    const authoritiesById = _.keyBy(authorities, (authority) => authority.id)
     const ballotVotes = _.groupBy(votes, (vote) => vote.ballot.id)[props.ballot.id]
 
     const activeDeputiesByPGId = DeputiesUtils.getActiveDeputiesByPGIdForSpecificDate(
@@ -59,7 +58,7 @@ onMounted(
 
     tableVotesNumber.data = _.map(activeDeputiesByPGId, (value, key) => {
       const politicalGroupVotes: PoliticalGroupVotes = {
-        politicalGroupLabel: authoritiesById[key][0].label,
+        politicalGroupLabel: key != "undefined" ? authoritiesById[key].label : "Inconnu",
         nonVoting: VotesUtils.getDeputiesVotesNumberForVoteState(
           value,
           ballotVotesByDeputyId,
@@ -83,8 +82,6 @@ onMounted(
       }
       return politicalGroupVotes
     })
-    const endTime = performance.now()
-    console.log(endTime - startTime)
   }
 );
 </script>
