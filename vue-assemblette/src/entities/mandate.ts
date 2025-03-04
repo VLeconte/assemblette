@@ -7,4 +7,5 @@ export interface Mandate {
   authority: Authority
   startDate: string
   endDate: string
+  seatNumber: number
 }

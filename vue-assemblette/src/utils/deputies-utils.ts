@@ -2,6 +2,7 @@ import type { Deputy } from '@/entities/deputy'
 import type { Mandate } from '@/entities/mandate'
 import _ from 'lodash'
 import { getActiveMandatesForSpecificDate } from './mandates-utils'
+import type { Authority } from '@/entities/authority'
 
 export function getActiveDeputiesByPGIdForSpecificDate(
   deputies: Deputy[],
@@ -42,5 +43,15 @@ export function getAuhtorityPGForSpecificDate(deputy: Deputy, mandates: Mandate[
   const activePGMandates = _.filter(activeMandates, (mandate) => {
     return mandate.authority.authorityType === 'GP'
   })
-  return _.last(_.sortBy(activePGMandates, (mandate) => mandate.startDate))?.authority
+  if (!_.isEmpty(activePGMandates)) {
+    return _.last(_.sortBy(activePGMandates, (mandate) => mandate.startDate))!.authority
+  }
+  const authorityUnknownPG: Authority = {
+    id: '',
+    authorityType: 'GP',
+    label: 'Inconnu',
+    labelAbbreviated: 'Inconnu',
+    associatedColor: '#FFFFFF',
+  }
+  return authorityUnknownPG
 }
