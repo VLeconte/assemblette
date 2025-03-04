@@ -2,7 +2,7 @@
 import { type Ballot } from '@/entities/ballot';
 import { onMounted, reactive, ref, type PropType } from 'vue';
 import _ from 'lodash'
-import DeputiesUtils from '@/utils/deputies-utils';
+import { getActiveDeputiesByPGIdForSpecificDate } from '@/utils/deputies-utils';
 import type { PoliticalGroupVotes } from '@/entities/political-group-votes';
 import VotesUtils from '@/utils/votes-utils';
 import TableVotes from '@/components/TableVotes.vue';
@@ -48,7 +48,7 @@ onMounted(
     const authoritiesById = _.keyBy(authorities, (authority) => authority.id)
     const ballotVotes = _.groupBy(votes, (vote) => vote.ballot.id)[props.ballot.id]
 
-    const activeDeputiesByPGId = DeputiesUtils.getActiveDeputiesByPGIdForSpecificDate(
+    const activeDeputiesByPGId = getActiveDeputiesByPGIdForSpecificDate(
       deputies,
       mandates,
       props.ballot.ballotDate
