@@ -13,6 +13,7 @@ public class MandateMapper {
                 .authority(Authority.builder().id(mandateJson.getAuthorityId()).build())
                 .startDate(mandateJson.getStartDate())
                 .endDate(mandateJson.getEndDate())
+                .seatNumber(mandateJson.getSeatNumber())
                 .build();
     }
 }

@@ -30,4 +30,6 @@ public class Mandate {
     private String startDate;
 
     private String endDate;
+
+    private int seatNumber;
 }

@@ -22,14 +22,24 @@ public class MandateJson {
 
     private String authorityId;
 
+    @JsonProperty("organes")
+    private void unpackAuthorityIdFromNestedObject(Map<String, String> organes) {
+        authorityId = organes.get("organeRef");
+    }
+
     @JsonProperty("dateDebut")
     private String startDate;
 
     @JsonProperty("dateFin")
     private String endDate;
 
-    @JsonProperty("organes")
-    private void unpackIdFromNestedObject(Map<String, String> organes) {
-        authorityId = organes.get("organeRef");
+    private int seatNumber;
+
+    @JsonProperty("mandature")
+    private void unpackSeatNumberIdFromNestedObject(Map<String, String> mandature) {
+        String seatNumberAsString = mandature.get("placeHemicycle");
+        if (seatNumberAsString != null) {
+            seatNumber = Integer.parseInt(seatNumberAsString);
+        }
     }
 }
