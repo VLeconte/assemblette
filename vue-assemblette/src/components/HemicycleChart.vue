@@ -28,50 +28,60 @@ const props = defineProps({
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend)
 
-const radius = 1
-
 // const data = computed(() => {
+//   const hemicyleElementsByPGId = _.groupBy(props.hemicycleElements, hemicycleElement => hemicycleElement.authorityPG.id)
 //   return {
-//     datasets: [{
-//       label: 'Scatter Dataset',
-//       data: [{
-//         x: radius * Math.cos(45 * Math.PI / 180),
-//         y: radius * Math.sin(45 * Math.PI / 180)
-//       }, {
-//         x: 2 * Math.cos(45 * Math.PI / 180),
-//         y: 2 * Math.sin(45 * Math.PI / 180)
-//       }, {
-//         x: radius * Math.cos(137 * Math.PI / 180),
-//         y: radius * Math.sin(137 * Math.PI / 180)
-//       }, {
-//         x: 3 * Math.cos(137 * Math.PI / 180),
-//         y: 3 * Math.sin(137 * Math.PI / 180)
-//       }],
-//       backgroundColor: 'rgb(255, 99, 132)'
-//     }],
+//     datasets: _.map(hemicyleElementsByPGId, (value, key) => {
+//       const authoritiesById = _.keyBy(props.authorities, authority => authority.id)
+//       return {
+//         label: authoritiesById[key].label,
+//         backgroundColor: authoritiesById[key].associatedColor,
+//         data: _.map(value, (hemicycleElement) => {
+//           return {
+//             x: hemicycleSeatCoordsBySeatNumber.data[hemicycleElement.mandateAssembly.seatNumber].x,
+//             y: hemicycleSeatCoordsBySeatNumber.data[hemicycleElement.mandateAssembly.seatNumber].y
+//           }
+//         })
+//       }
+//     })
 //   }
 // })
 
 const data = computed(() => {
-  console.log(hemicycleSeatCoordsBySeatNumber)
-  const testHemicycleElements = _.filter(props.hemicycleElements, (hemicyleElement) => { return hemicyleElement.mandateAssembly.seatNumber >= 0 && hemicyleElement.mandateAssembly.seatNumber < 23 })
-  const hemicyleElementsByPGId = _.groupBy(testHemicycleElements, hemicycleElement => hemicycleElement.authorityPG.id)
   return {
-    datasets: _.map(hemicyleElementsByPGId, (value, key) => {
-      const authoritiesById = _.keyBy(props.authorities, authority => authority.id)
-      return {
-        label: authoritiesById[key].label,
-        backgroundColor: authoritiesById[key].associatedColor,
-        data: _.map(value, (hemicycleElement) => {
+    datasets:
+      [{
+        label: "Test hemycicle",
+        backgroundColor: "#d916b3",
+        data: _.map(hemicycleSeatCoordsBySeatNumber.data, (value, key) => {
           return {
-            x: hemicycleSeatCoordsBySeatNumber.data[hemicycleElement.mandateAssembly.seatNumber].x,
-            y: hemicycleSeatCoordsBySeatNumber.data[hemicycleElement.mandateAssembly.seatNumber].y
+            x: value.x,
+            y: value.y
+
           }
         })
-      }
-    })
+      }]
   }
 })
+
+const options = {
+  responsive: true,
+  scales: {
+    x: {
+      min: -100,
+      max: 100
+    },
+    y: {
+      min: -10,
+      max: 80
+    }
+  },
+  plugins: {
+    tooltip: {
+      enabled: true
+    }
+  }
+}
 
 
 const hemicycleSeatCoordsBySeatNumber = reactive<{
@@ -83,16 +93,17 @@ const hemicycleSeatCoordsBySeatNumber = reactive<{
 });
 
 function getHemicyleCoords() {
-  const widthConeAngle = 15
-  const widthAlleyAngle = 2
+  const widthConeAngle = 20
+  const widthAlleyAngle = 10
   const betweenAlleysAngleExtremCaseBig = 10
-  const rowDelta = 10
-  const seatsForRow = [3, 3, 4, 5, 6, 7, 7, 9, 9, 11, 11]
+  const rowDelta = 5
+  const rowOffset = 15
+  const seatsForRow = [3, 3, 3, 4, 5, 6, 7, 7, 9, 9, 11, 11]
   const seatsForRowExtremCaseBig = [0, 0, 0, 0, 0, 0, 4, 4, 4, 5, 5, 3]
   const seatsForRowExtremCaseSmall = [0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 3, 4]
-  const seatsToSKip = [4, 6, 8]
-  let seatNumber = 1
-  let seatIdxInRow = 1
+  const seatsToSKip = [4, 29, 34, 37, 42, 55, 61, 65, 69]
+  let seatNumber = 0
+  let seatIdxInRow = -1
   let coneIdx = 0
   let rowIdx = 1
   let caseToApply = "default"
@@ -100,9 +111,12 @@ function getHemicyleCoords() {
 
   const hemicyleSeatsCoords: HemycicleSeatCoords[] = []
   while (seatNumber <= 650) {
+    seatNumber++
     if (seatsToSKip.includes(seatNumber)) {
       continue
     }
+
+    seatIdxInRow++
     switch (caseToApply) {
       case "extremRight":
         if (coneIdx === 0) {
@@ -117,12 +131,14 @@ function getHemicyleCoords() {
             coneIdx = 0
             seatIdxInRow = 0
           }
+          if (rowIdx >= 12) {
+            rowIdx = 0
+            coneIdx = 1
+            caseToApply = "default"
+          }
         }
-        if (rowIdx >= 13) {
-          rowIdx = 0
-          coneIdx++
-          caseToApply = "default"
-        }
+        break;
+
       default:
         if (seatIdxInRow >= seatsForRow[rowIdx]) {
           rowIdx++
@@ -133,7 +149,7 @@ function getHemicyleCoords() {
           coneIdx = 0
           caseToApply = "extremRight"
         }
-        else if (rowIdx >= 13) {
+        else if (rowIdx >= 12) {
           coneIdx++
           switch (coneIdx) {
             case 3:
@@ -148,26 +164,34 @@ function getHemicyleCoords() {
               rowIdx = 0
           }
         }
+        break;
     }
 
     let angleDeg
     switch (caseToApply) {
       case "extremRight":
         if (coneIdx === 0) {
-          angleDeg = (betweenAlleysAngleExtremCaseBig - widthAlleyAngle / 2) / seatsForRowExtremCaseBig[rowIdx] * seatIdxInRow
+          angleDeg = (
+            (betweenAlleysAngleExtremCaseBig - widthAlleyAngle / 2) / (seatsForRowExtremCaseBig[rowIdx] - 1) * seatIdxInRow)
         }
         else {
-          angleDeg = betweenAlleysAngleExtremCaseBig + widthAlleyAngle / 2 + (widthConeAngle - betweenAlleysAngleExtremCaseBig - widthAlleyAngle / 2) / seatsForRowExtremCaseSmall[rowIdx] * seatIdxInRow
+          angleDeg = (
+            betweenAlleysAngleExtremCaseBig
+            + widthAlleyAngle / 2
+            + (widthConeAngle - betweenAlleysAngleExtremCaseBig - widthAlleyAngle / 2) / (seatsForRowExtremCaseSmall[rowIdx] - 1) * seatIdxInRow)
         }
         break;
       default:
-        angleDeg = coneIdx * widthConeAngle + widthAlleyAngle / 2 + (widthConeAngle - widthAlleyAngle) / seatsForRow[rowIdx] * seatIdxInRow
+        angleDeg = (
+          widthAlleyAngle
+          + coneIdx * widthConeAngle
+          + (widthConeAngle - widthAlleyAngle) / (seatsForRow[rowIdx] - 1) * seatIdxInRow)
     }
-    const radius = rowIdx <= 5 ? rowIdx * rowDelta : (rowIdx + 1) * rowDelta
+    const radius = rowIdx <= 5 ? rowOffset + rowIdx * rowDelta : rowOffset + (rowIdx + 1) * rowDelta
 
     hemicyleSeatsCoords.push(
       {
-        seatNumber: seatNumber++,
+        seatNumber: seatNumber,
         x: radius * Math.cos(angleDeg * Math.PI / 180),
         y: radius * Math.sin(angleDeg * Math.PI / 180)
       }
@@ -178,7 +202,7 @@ function getHemicyleCoords() {
 
 
 onMounted(() => {
-  hemicycleSeatCoordsBySeatNumber.data = getHemicyleCoords(hemicylePlacementInstructions)
+  hemicycleSeatCoordsBySeatNumber.data = getHemicyleCoords()
   hemicycleSeatCoordsBySeatNumber.isLoading = false
 }
 )

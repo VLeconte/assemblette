@@ -82,7 +82,7 @@ onMounted(
 
 <template>
   <div v-if="!deputies.isLoading && !mandatesByDeputies.isLoading && !hemicycleElements.isLoading">
-    <div>
+    <div class="w-1/2">
       <HemicycleChart :hemicycle-elements="hemicycleElements.data" :authorities="authorities" />
     </div>
     <div class="w-screen flex flex-wrap gap-8 p-4 justify-center">
