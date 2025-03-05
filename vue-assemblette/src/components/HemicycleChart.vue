@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HemicycleElement } from '@/entities/hemicycle-element';
+import type { HemycicleSeatCoords } from '@/entities/hemicycle-seat-coords';
 import _ from 'lodash'
 import {
   Chart as ChartJS,
@@ -10,7 +11,7 @@ import {
   LinearScale,
   PointElement
 } from 'chart.js'
-import { computed, type PropType } from 'vue';
+import { computed, onMounted, reactive, type PropType } from 'vue';
 import { Scatter } from 'vue-chartjs'
 import type { Authority } from '@/entities/authority';
 
@@ -52,7 +53,9 @@ const radius = 1
 // })
 
 const data = computed(() => {
-  const hemicyleElementsByPGId = _.groupBy(props.hemicycleElements, hemicycleElement => hemicycleElement.authorityPG.id)
+  console.log(hemicycleSeatCoordsBySeatNumber)
+  const testHemicycleElements = _.filter(props.hemicycleElements, (hemicyleElement) => { return hemicyleElement.mandateAssembly.seatNumber >= 0 && hemicyleElement.mandateAssembly.seatNumber < 23 })
+  const hemicyleElementsByPGId = _.groupBy(testHemicycleElements, hemicycleElement => hemicycleElement.authorityPG.id)
   return {
     datasets: _.map(hemicyleElementsByPGId, (value, key) => {
       const authoritiesById = _.keyBy(props.authorities, authority => authority.id)
@@ -61,14 +64,72 @@ const data = computed(() => {
         backgroundColor: authoritiesById[key].associatedColor,
         data: _.map(value, (hemicycleElement) => {
           return {
-            x: hemicycleElement.mandateAssembly.seatNumber / 10 * Math.cos(hemicycleElement.mandateAssembly.seatNumber % 100 * Math.PI / 180),
-            y: hemicycleElement.mandateAssembly.seatNumber / 10 * Math.sin(hemicycleElement.mandateAssembly.seatNumber % 100 * Math.PI / 180)
+            x: hemicycleSeatCoordsBySeatNumber.data[hemicycleElement.mandateAssembly.seatNumber].x,
+            y: hemicycleSeatCoordsBySeatNumber.data[hemicycleElement.mandateAssembly.seatNumber].y
           }
         })
       }
     })
   }
 })
+
+const hemicylePlacementInstructions = [
+  "row",
+  "3",
+  "skip",
+  "3",
+  "4",
+  "5",
+  "6"
+]
+
+const hemicycleSeatCoordsBySeatNumber = reactive<{
+  data: _.Dictionary<HemycicleSeatCoords>
+  isLoading: boolean
+}>({
+  data: {},
+  isLoading: true
+});
+
+function getHemicyleCoords(hemicylePlacementInstructions: string[]) {
+  const alleyAngleDelta = 15
+  const rowDelta = 10
+  let seatNumber = 1
+  let alleyNumber = 0
+  let rowNumber = 0
+
+  const hemicyleSeatsCoords: HemycicleSeatCoords[] = []
+  for (const hemicylePlacementInstruction in hemicylePlacementInstructions) {
+    switch (hemicylePlacementInstruction) {
+      case "alley":
+        alleyNumber++
+        break;
+      case "row":
+        rowNumber++
+        break;
+      case "skip":
+        console.log(seatNumber)
+        seatNumber++
+        console.log(seatNumber)
+        break;
+      default:
+        const numberOfSeatsToPlace = parseInt(hemicylePlacementInstruction)
+        for (let i = 0; i < numberOfSeatsToPlace; i++) {
+          const angleDeg = alleyNumber * alleyAngleDelta + 1 + (alleyAngleDelta - 2) / numberOfSeatsToPlace * i
+          hemicyleSeatsCoords.push(
+            {
+              seatNumber: seatNumber++,
+              x: rowNumber * rowDelta * Math.sin(angleDeg * Math.PI / 180),
+              y: rowNumber * rowDelta * Math.cos(angleDeg * Math.PI / 180)
+            }
+          )
+        }
+        rowNumber++
+        break;
+    }
+  }
+  return _.keyBy(hemicyleSeatsCoords, hemicyleSeatCoords => hemicyleSeatCoords.seatNumber)
+}
 
 const options = {
   responsive: true,
@@ -89,10 +150,15 @@ const options = {
   }
 }
 
+onMounted(() => {
+  hemicycleSeatCoordsBySeatNumber.data = getHemicyleCoords(hemicylePlacementInstructions)
+  hemicycleSeatCoordsBySeatNumber.isLoading = false
+}
+)
 
 
 </script>
 
 <template>
-  <Scatter :data="data" :options="options" />
+  <Scatter v-if="!hemicycleSeatCoordsBySeatNumber.isLoading" :data="data" :options="options" />
 </template>
