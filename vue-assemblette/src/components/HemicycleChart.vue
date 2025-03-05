@@ -73,15 +73,6 @@ const data = computed(() => {
   }
 })
 
-const hemicylePlacementInstructions = [
-  "row",
-  "3",
-  "skip",
-  "3",
-  "4",
-  "5",
-  "6"
-]
 
 const hemicycleSeatCoordsBySeatNumber = reactive<{
   data: _.Dictionary<HemycicleSeatCoords>
@@ -91,64 +82,100 @@ const hemicycleSeatCoordsBySeatNumber = reactive<{
   isLoading: true
 });
 
-function getHemicyleCoords(hemicylePlacementInstructions: string[]) {
-  const alleyAngleDelta = 15
+function getHemicyleCoords() {
+  const widthConeAngle = 15
+  const widthAlleyAngle = 2
+  const betweenAlleysAngleExtremCaseBig = 10
   const rowDelta = 10
+  const seatsForRow = [3, 3, 4, 5, 6, 7, 7, 9, 9, 11, 11]
+  const seatsForRowExtremCaseBig = [0, 0, 0, 0, 0, 0, 4, 4, 4, 5, 5, 3]
+  const seatsForRowExtremCaseSmall = [0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 3, 4]
+  const seatsToSKip = [4, 6, 8]
   let seatNumber = 1
-  let alleyNumber = 0
-  let rowNumber = 0
+  let seatIdxInRow = 1
+  let coneIdx = 0
+  let rowIdx = 1
+  let caseToApply = "default"
+
 
   const hemicyleSeatsCoords: HemycicleSeatCoords[] = []
-  for (const hemicylePlacementInstruction in hemicylePlacementInstructions) {
-    switch (hemicylePlacementInstruction) {
-      case "alley":
-        alleyNumber++
-        break;
-      case "row":
-        rowNumber++
-        break;
-      case "skip":
-        console.log(seatNumber)
-        seatNumber++
-        console.log(seatNumber)
+  while (seatNumber <= 650) {
+    if (seatsToSKip.includes(seatNumber)) {
+      continue
+    }
+    switch (caseToApply) {
+      case "extremRight":
+        if (coneIdx === 0) {
+          if (seatIdxInRow >= seatsForRowExtremCaseBig[rowIdx]) {
+            coneIdx = 1
+            seatIdxInRow = 0
+          }
+        }
+        else {
+          if (seatIdxInRow >= seatsForRowExtremCaseSmall[rowIdx]) {
+            rowIdx++
+            coneIdx = 0
+            seatIdxInRow = 0
+          }
+        }
+        if (rowIdx >= 13) {
+          rowIdx = 0
+          coneIdx++
+          caseToApply = "default"
+        }
+      default:
+        if (seatIdxInRow >= seatsForRow[rowIdx]) {
+          rowIdx++
+          seatIdxInRow = 0
+        }
+
+        if (rowIdx === 6 && coneIdx === 0) {
+          coneIdx = 0
+          caseToApply = "extremRight"
+        }
+        else if (rowIdx >= 13) {
+          coneIdx++
+          switch (coneIdx) {
+            case 3:
+            case 4:
+            case 5:
+              rowIdx = 2
+              break;
+            case 7:
+              rowIdx = 1
+              break;
+            default:
+              rowIdx = 0
+          }
+        }
+    }
+
+    let angleDeg
+    switch (caseToApply) {
+      case "extremRight":
+        if (coneIdx === 0) {
+          angleDeg = (betweenAlleysAngleExtremCaseBig - widthAlleyAngle / 2) / seatsForRowExtremCaseBig[rowIdx] * seatIdxInRow
+        }
+        else {
+          angleDeg = betweenAlleysAngleExtremCaseBig + widthAlleyAngle / 2 + (widthConeAngle - betweenAlleysAngleExtremCaseBig - widthAlleyAngle / 2) / seatsForRowExtremCaseSmall[rowIdx] * seatIdxInRow
+        }
         break;
       default:
-        const numberOfSeatsToPlace = parseInt(hemicylePlacementInstruction)
-        for (let i = 0; i < numberOfSeatsToPlace; i++) {
-          const angleDeg = alleyNumber * alleyAngleDelta + 1 + (alleyAngleDelta - 2) / numberOfSeatsToPlace * i
-          hemicyleSeatsCoords.push(
-            {
-              seatNumber: seatNumber++,
-              x: rowNumber * rowDelta * Math.sin(angleDeg * Math.PI / 180),
-              y: rowNumber * rowDelta * Math.cos(angleDeg * Math.PI / 180)
-            }
-          )
-        }
-        rowNumber++
-        break;
+        angleDeg = coneIdx * widthConeAngle + widthAlleyAngle / 2 + (widthConeAngle - widthAlleyAngle) / seatsForRow[rowIdx] * seatIdxInRow
     }
+    const radius = rowIdx <= 5 ? rowIdx * rowDelta : (rowIdx + 1) * rowDelta
+
+    hemicyleSeatsCoords.push(
+      {
+        seatNumber: seatNumber++,
+        x: radius * Math.cos(angleDeg * Math.PI / 180),
+        y: radius * Math.sin(angleDeg * Math.PI / 180)
+      }
+    )
   }
   return _.keyBy(hemicyleSeatsCoords, hemicyleSeatCoords => hemicyleSeatCoords.seatNumber)
 }
 
-const options = {
-  responsive: true,
-  scales: {
-    x: {
-      min: -100,
-      max: 100
-    },
-    y: {
-      min: 0,
-      max: 100
-    }
-  },
-  plugins: {
-    tooltip: {
-      enabled: true
-    }
-  }
-}
 
 onMounted(() => {
   hemicycleSeatCoordsBySeatNumber.data = getHemicyleCoords(hemicylePlacementInstructions)
