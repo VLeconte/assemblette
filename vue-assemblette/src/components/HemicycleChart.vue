@@ -28,41 +28,42 @@ const props = defineProps({
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend)
 
+const data = computed(() => {
+  const hemicycleSeatCoordsBySeatNumber = _.keyBy(hemicyleSeatsCoords.data, hemicyleSeatCoords => hemicyleSeatCoords.seatNumber)
+  const hemicyleElementsByPGId = _.groupBy(props.hemicycleElements, hemicycleElement => hemicycleElement.authorityPG.id)
+  return {
+    datasets: _.map(hemicyleElementsByPGId, (value, key) => {
+      const authoritiesById = _.keyBy(props.authorities, authority => authority.id)
+      return {
+        label: authoritiesById[key].label,
+        backgroundColor: authoritiesById[key].associatedColor,
+        data: _.map(value, (hemicycleElement) => {
+          return {
+            x: hemicycleSeatCoordsBySeatNumber[hemicycleElement.mandateAssembly.seatNumber].x,
+            y: hemicycleSeatCoordsBySeatNumber[hemicycleElement.mandateAssembly.seatNumber].y
+          }
+        })
+      }
+    })
+  }
+})
+
 // const data = computed(() => {
-//   const hemicyleElementsByPGId = _.groupBy(props.hemicycleElements, hemicycleElement => hemicycleElement.authorityPG.id)
+//   const hemicycleSeatCoordsBySeatNumber = _.keyBy(hemicyleSeatsCoords.data, hemicyleSeatCoords => hemicyleSeatCoords.seatNumber)
 //   return {
-//     datasets: _.map(hemicyleElementsByPGId, (value, key) => {
-//       const authoritiesById = _.keyBy(props.authorities, authority => authority.id)
+//     datasets: _.map(hemicycleSeatCoordsBySeatNumber, (value, key) => {
 //       return {
-//         label: authoritiesById[key].label,
-//         backgroundColor: authoritiesById[key].associatedColor,
-//         data: _.map(value, (hemicycleElement) => {
-//           return {
-//             x: hemicycleSeatCoordsBySeatNumber.data[hemicycleElement.mandateAssembly.seatNumber].x,
-//             y: hemicycleSeatCoordsBySeatNumber.data[hemicycleElement.mandateAssembly.seatNumber].y
-//           }
-//         })
+//         label: key,
+//         backgroundColor: "#d916b3",
+//         data: [{
+//           x: value.x,
+//           y: value.y
+//         }]
 //       }
 //     })
 //   }
-// })
-
-const data = computed(() => {
-  return {
-    datasets:
-      [{
-        label: "Test hemycicle",
-        backgroundColor: "#d916b3",
-        data: _.map(hemicycleSeatCoordsBySeatNumber.data, (value, key) => {
-          return {
-            x: value.x,
-            y: value.y
-
-          }
-        })
-      }]
-  }
-})
+// }
+// )
 
 const options = {
   responsive: true,
@@ -77,6 +78,9 @@ const options = {
     }
   },
   plugins: {
+    legend: {
+      display: false
+    },
     tooltip: {
       enabled: true
     }
@@ -84,35 +88,50 @@ const options = {
 }
 
 
-const hemicycleSeatCoordsBySeatNumber = reactive<{
-  data: _.Dictionary<HemycicleSeatCoords>
+
+
+const hemicyleSeatsCoords = reactive<{
+  data: HemycicleSeatCoords[]
   isLoading: boolean
 }>({
-  data: {},
+  data: [],
   isLoading: true
 });
 
 function getHemicyleCoords() {
-  const widthFullHemicycle = 180
+  const widthFullHemicycle = 188
   const widthAlleyAngle = 8
-  const widthSmallExtremConeAngle = 5  // From alley to alley
-  const rowDelta = 4
-  const rowOffset = 15
-  const seatsForRow = [3, 3, 3, 4, 5, 6, 7, 7, 9, 9, 11, 11]
+  const widthSmallExtremConeAngle = 12  // From center of alley to center of alley
+  if (widthSmallExtremConeAngle <= widthAlleyAngle) {
+    throw new Error("widthSmallExtremConeAngle must be superior to widthAlleyAngle");
+  }
+  const rowDelta = 3
+  const rowOffset = 25
+  const seatsForRowDefault = [3, 3, 4, 4, 5, 6, 7, 7, 9, 9, 11, 11]
+  const seatsForRowExtremCase = [0, 3, 3, 4, 5, 6]
   const seatsForRowExtremCaseBig = [0, 0, 0, 0, 0, 0, 4, 4, 4, 5, 5, 3]
   const seatsForRowExtremCaseSmall = [0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 3, 4]
-  const seatsToSKip = [4, 29, 34, 37, 42, 55, 61, 65, 69]
-  const widthConeAngle = widthFullHemicycle / 8  // From alley to alley
+  const seatsToSKip = [
+    4, 29, 34, 37, 42, 46, 55, 61, 65, 69, 74,
+    107, 115, 121, 131, 142, 159, 160, 161, 194,
+    202, 208, 218, 229, 246, 247, 252, 275, 283, 289, 299,
+    310, 316, 328, 355, 363, 369, 379, 390, 396,
+    408, 435, 443, 449, 459, 470, 476, 477,
+    521, 529, 535, 545, 556, 562, 563, 575, 579, 598,
+    605, 608, 613, 617, 622, 631, 635, 641, 646, 647
+  ]
+  const widthConeAngle = widthFullHemicycle / 8  // From center of alley to center of alley
   const offsetAngle = (widthFullHemicycle - 180) / 2
   let seatNumber = 0
   let seatIdxInRow = -1
+  let seatsForRow = seatsForRowExtremCase
   let coneIdx = 0
   let rowIdx = 1
   let caseToApply = "default"
 
 
   const hemicyleSeatsCoords: HemycicleSeatCoords[] = []
-  while (seatNumber <= 250) {
+  while (seatNumber <= 649) {
     seatNumber++
     if (seatsToSKip.includes(seatNumber)) {
       continue
@@ -121,43 +140,47 @@ function getHemicyleCoords() {
     seatIdxInRow++
     switch (caseToApply) {
       case "extremRight":
-        if (coneIdx === 0) {
-          if (seatIdxInRow >= seatsForRowExtremCaseBig[rowIdx]) {
+        if (seatIdxInRow >= seatsForRow[rowIdx]) {
+          seatIdxInRow = 0
+          if (coneIdx === 0) {
             coneIdx = 1
-            seatIdxInRow = 0
+            seatsForRow = seatsForRowExtremCaseSmall
           }
-        }
-        else {
-          if (seatIdxInRow >= seatsForRowExtremCaseSmall[rowIdx]) {
-            rowIdx++
-            coneIdx = 0
-            seatIdxInRow = 0
-          }
-          if (rowIdx >= 12) {
-            rowIdx = 0
-            coneIdx = 1
-            caseToApply = "default"
+          else if (coneIdx === 1) {
+            if (rowIdx >= 11) {
+              rowIdx = 0
+              coneIdx = 1
+              seatsForRow = seatsForRowDefault
+              caseToApply = "default"
+            }
+            else {
+              rowIdx++
+              coneIdx = 0
+              seatsForRow = seatsForRowExtremCaseBig
+            }
           }
         }
         break;
 
       case "extremLeft":
-        if (coneIdx === 0) {
-          if (seatIdxInRow >= seatsForRowExtremCaseSmall[rowIdx]) {
+        if (seatIdxInRow >= seatsForRow[rowIdx]) {
+          seatIdxInRow = 0
+          if (coneIdx === 0) {
             coneIdx = 1
-            seatIdxInRow = 0
+            seatsForRow = seatsForRowExtremCaseBig
           }
-        }
-        else {
-          if (seatIdxInRow >= seatsForRowExtremCaseBig[rowIdx]) {
-            rowIdx++
-            coneIdx = 0
-            seatIdxInRow = 0
-          }
-          if (rowIdx >= 12) {
-            rowIdx = 0
-            coneIdx = 8
-            caseToApply = "default"
+          else if (coneIdx === 1) {
+            if (rowIdx >= 11) {
+              rowIdx = 0
+              coneIdx = 8
+              seatsForRow = seatsForRowDefault
+              caseToApply = "default"
+            }
+            else {
+              rowIdx++
+              coneIdx = 0
+              seatsForRow = seatsForRowExtremCaseSmall
+            }
           }
         }
         break;
@@ -170,10 +193,12 @@ function getHemicyleCoords() {
 
         if (rowIdx === 6 && coneIdx === 0) {
           coneIdx = 0
+          seatsForRow = seatsForRowExtremCaseBig
           caseToApply = "extremRight"
         }
         else if (rowIdx === 6 && coneIdx === 7) {
           coneIdx = 0
+          seatsForRow = seatsForRowExtremCaseSmall
           caseToApply = "extremLeft"
         }
         else if (rowIdx >= 12) {
@@ -186,6 +211,7 @@ function getHemicyleCoords() {
               break;
             case 7:
               rowIdx = 1
+              seatsForRow = seatsForRowExtremCase
               break;
             default:
               rowIdx = 0
@@ -199,14 +225,29 @@ function getHemicyleCoords() {
       case "extremRight":
         if (coneIdx === 0) {
           angleDeg = (
-            (widthConeAngle - widthSmallExtremConeAngle - widthAlleyAngle / 2) / (seatsForRowExtremCaseBig[rowIdx] - 1) * seatIdxInRow)
+            (widthConeAngle - widthSmallExtremConeAngle - widthAlleyAngle / 2) / (seatsForRow[rowIdx] - 1) * seatIdxInRow)
         }
         else {
           angleDeg = (
             widthConeAngle
             - widthSmallExtremConeAngle
             + widthAlleyAngle / 2
-            + (widthSmallExtremConeAngle - widthAlleyAngle) / (seatsForRowExtremCaseSmall[rowIdx] - 1) * seatIdxInRow)
+            + (widthSmallExtremConeAngle - widthAlleyAngle) / (seatsForRow[rowIdx] - 1) * seatIdxInRow)
+        }
+        break;
+      case "extremLeft":
+        if (coneIdx === 0) {
+          angleDeg = (
+            7 * widthConeAngle
+            + widthAlleyAngle / 2
+            + (widthSmallExtremConeAngle - widthAlleyAngle) / (seatsForRow[rowIdx] - 1) * seatIdxInRow)
+        }
+        else {
+          angleDeg = (
+            7 * widthConeAngle
+            + widthSmallExtremConeAngle
+            + widthAlleyAngle / 2
+            + (widthConeAngle - widthSmallExtremConeAngle - widthAlleyAngle / 2) / (seatsForRow[rowIdx] - 1) * seatIdxInRow)
         }
         break;
       default:
@@ -226,13 +267,13 @@ function getHemicyleCoords() {
       }
     )
   }
-  return _.keyBy(hemicyleSeatsCoords, hemicyleSeatCoords => hemicyleSeatCoords.seatNumber)
+  return hemicyleSeatsCoords
 }
 
 
 onMounted(() => {
-  hemicycleSeatCoordsBySeatNumber.data = getHemicyleCoords()
-  hemicycleSeatCoordsBySeatNumber.isLoading = false
+  hemicyleSeatsCoords.data = getHemicyleCoords()
+  hemicyleSeatsCoords.isLoading = false
 }
 )
 
@@ -240,5 +281,5 @@ onMounted(() => {
 </script>
 
 <template>
-  <Scatter v-if="!hemicycleSeatCoordsBySeatNumber.isLoading" :data="data" :options="options" />
+  <Scatter v-if="!hemicyleSeatsCoords.isLoading" :data="data" :options="options" />
 </template>
