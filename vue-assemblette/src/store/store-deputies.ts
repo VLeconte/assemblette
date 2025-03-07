@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import _ from 'lodash'
 import type { Deputy } from '@/entities/deputy'
 import axios from 'axios'
+import { ref } from 'vue'
 
 export const useDeputiesStore = defineStore('deputies', () => {
   const restDeputies = axios.create({
@@ -27,5 +28,7 @@ export const useDeputiesStore = defineStore('deputies', () => {
     }
   }
 
-  return { getDeputies }
+  const deputyIdSelectedOnHemicycle = ref('')
+
+  return { getDeputies, deputyIdSelectedOnHemicycle }
 })

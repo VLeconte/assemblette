@@ -3,7 +3,7 @@ import type { HemicycleElement } from '@/entities/hemicycle-element';
 import type { HemycicleSeatCoords } from '@/entities/hemicycle-seat-coords';
 import _ from 'lodash'
 import {
-  Chart as ChartJS,
+  Chart,
   Title,
   Tooltip,
   Legend,
@@ -12,9 +12,10 @@ import {
   PointElement,
   type ChartDataset,
 } from 'chart.js'
-import { computed, onMounted, reactive, type PropType } from 'vue';
+import { computed, onMounted, reactive, ref, type PropType } from 'vue';
 import { Scatter } from 'vue-chartjs'
 import type { Authority } from '@/entities/authority';
+import { useDeputiesStore } from '@/store/store-deputies';
 
 const props = defineProps({
   hemicycleElements: {
@@ -27,7 +28,11 @@ const props = defineProps({
   }
 });
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend)
+const deputiesStore = useDeputiesStore()
+
+Chart.register(CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend)
+
+const deputyToDisplaySeatNumber = ref("")
 
 const data = computed(() => {
   const hemicycleSeatCoordsBySeatNumber = _.keyBy(hemicyleSeatsCoords.data, hemicyleSeatCoords => hemicyleSeatCoords.seatNumber)
@@ -35,7 +40,7 @@ const data = computed(() => {
     datasets: _.map(props.hemicycleElements, (hemicycleElement) => {
       const authoritiesById = _.keyBy(props.authorities, authority => authority.id)
       return {
-        label: hemicycleElement.deputy.firstName + " " + hemicycleElement.deputy.lastName,
+        label: hemicycleElement.mandateAssembly.seatNumber.toString(),
         backgroundColor: authoritiesById[hemicycleElement.authorityPG.id].associatedColor,
         data:
           [{
@@ -83,12 +88,21 @@ const options = {
     }
   },
   aspectRatio: chartHalfWidth * 2 / (chartYMax - chartYMin),
-  onResize: (chart: ChartJS, size: { width: number; height: number }) => {
-    console.log(size)
+  onResize: (chart: Chart, size: { width: number; height: number }) => {
     for (const dataset of chart.config.data.datasets as ChartDataset<'line'>[]) {
       dataset.pointRadius = size.height * 5 / 568
       dataset.pointHoverRadius = size.height * 10 / 568
     }
+  },
+  onClick: (e) => {
+    console.log(e)
+    const elementClicked = e.chart.getElementsAtEventForMode(
+      e,
+      'nearest',  // Finds the nearest point
+      { intersect: true },
+      true
+    );
+    deputiesStore.deputyIdSelectedOnHemicycle = data.value.datasets[elementClicked[0].datasetIndex].label
   },
   plugins: {
     legend: {
@@ -101,18 +115,17 @@ const options = {
   animation: true,
   animations: {
     x: {
-      easing: 'linear',
-      from: 1000,
+      easing: 'easeInOutBack',
+      from: -1,
       delay: 0,
-      duration: 0
+      duration: 3000
     },
     y: {
-      easing: 'linear',
-      from: 500,
+      easing: 'easeInOutBack',
+      from: -1,
       delay: 0,
-      duration: 50000
-    },
-    // color: { type: 'color', properties: ['borderColor', 'backgroundColor'], from: 'transparent' }
+      duration: 3000
+    }
   },
 }
 
