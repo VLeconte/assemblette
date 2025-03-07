@@ -9,7 +9,8 @@ import {
   Legend,
   CategoryScale,
   LinearScale,
-  PointElement
+  PointElement,
+  type ChartDataset,
 } from 'chart.js'
 import { computed, onMounted, reactive, type PropType } from 'vue';
 import { Scatter } from 'vue-chartjs'
@@ -30,19 +31,17 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, Title, Tooltip, Legen
 
 const data = computed(() => {
   const hemicycleSeatCoordsBySeatNumber = _.keyBy(hemicyleSeatsCoords.data, hemicyleSeatCoords => hemicyleSeatCoords.seatNumber)
-  const hemicyleElementsByPGId = _.groupBy(props.hemicycleElements, hemicycleElement => hemicycleElement.authorityPG.id)
   return {
-    datasets: _.map(hemicyleElementsByPGId, (value, key) => {
+    datasets: _.map(props.hemicycleElements, (hemicycleElement) => {
       const authoritiesById = _.keyBy(props.authorities, authority => authority.id)
       return {
-        label: authoritiesById[key].label,
-        backgroundColor: authoritiesById[key].associatedColor,
-        data: _.map(value, (hemicycleElement) => {
-          return {
+        label: hemicycleElement.deputy.firstName + " " + hemicycleElement.deputy.lastName,
+        backgroundColor: authoritiesById[hemicycleElement.authorityPG.id].associatedColor,
+        data:
+          [{
             x: hemicycleSeatCoordsBySeatNumber[hemicycleElement.mandateAssembly.seatNumber].x,
             y: hemicycleSeatCoordsBySeatNumber[hemicycleElement.mandateAssembly.seatNumber].y
-          }
-        })
+          }]
       }
     })
   }
@@ -65,16 +64,30 @@ const data = computed(() => {
 // }
 // )
 
+const chartHalfWidth = 63
+const chartYMin = -8
+const chartYMax = 63
+
 const options = {
   responsive: true,
   scales: {
     x: {
-      min: -100,
-      max: 100
+      min: -chartHalfWidth,
+      max: chartHalfWidth,
+      display: false
     },
     y: {
-      min: -10,
-      max: 80
+      min: chartYMin,
+      max: chartYMax,
+      display: false
+    }
+  },
+  aspectRatio: chartHalfWidth * 2 / (chartYMax - chartYMin),
+  onResize: (chart: ChartJS, size: { width: number; height: number }) => {
+    console.log(size)
+    for (const dataset of chart.config.data.datasets as ChartDataset<'line'>[]) {
+      dataset.pointRadius = size.height * 5 / 568
+      dataset.pointHoverRadius = size.height * 10 / 568
     }
   },
   plugins: {
@@ -84,7 +97,23 @@ const options = {
     tooltip: {
       enabled: true
     }
-  }
+  },
+  animation: true,
+  animations: {
+    x: {
+      easing: 'linear',
+      from: 1000,
+      delay: 0,
+      duration: 0
+    },
+    y: {
+      easing: 'linear',
+      from: 500,
+      delay: 0,
+      duration: 50000
+    },
+    // color: { type: 'color', properties: ['borderColor', 'backgroundColor'], from: 'transparent' }
+  },
 }
 
 
@@ -226,6 +255,10 @@ function getHemicyleCoords() {
         if (coneIdx === 0) {
           angleDeg = (
             (widthConeAngle - widthSmallExtremConeAngle - widthAlleyAngle / 2) / (seatsForRow[rowIdx] - 1) * seatIdxInRow)
+          if (rowIdx === 11) {
+            angleDeg = (
+              (widthConeAngle - widthSmallExtremConeAngle - widthAlleyAngle / 2) / (seatsForRow[rowIdx] - 1 + 2) * (seatIdxInRow + 1))
+          }
         }
         else {
           angleDeg = (
@@ -248,6 +281,13 @@ function getHemicyleCoords() {
             + widthSmallExtremConeAngle
             + widthAlleyAngle / 2
             + (widthConeAngle - widthSmallExtremConeAngle - widthAlleyAngle / 2) / (seatsForRow[rowIdx] - 1) * seatIdxInRow)
+          if (rowIdx === 11) {
+            angleDeg = (
+              7 * widthConeAngle
+              + widthSmallExtremConeAngle
+              + widthAlleyAngle / 2
+              + (widthConeAngle - widthSmallExtremConeAngle - widthAlleyAngle / 2) / (seatsForRow[rowIdx] - 1 + 2) * (seatIdxInRow + 1))
+          }
         }
         break;
       default:
