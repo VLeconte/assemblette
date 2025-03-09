@@ -32,7 +32,17 @@ const deputiesStore = useDeputiesStore()
 
 Chart.register(CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend)
 
-const deputyToDisplaySeatNumber = ref("")
+function splitmix32(a) {
+  return function () {
+    a |= 0;
+    a = a + 0x9e3779b9 | 0;
+    let t = a ^ a >>> 16;
+    t = Math.imul(t, 0x21f0aaad);
+    t = t ^ t >>> 15;
+    t = Math.imul(t, 0x735a2d97);
+    return ((t = t ^ t >>> 15) >>> 0) / 4294967296;
+  }
+}
 
 const data = computed(() => {
   const hemicycleSeatCoordsBySeatNumber = _.keyBy(hemicyleSeatsCoords.data, hemicyleSeatCoords => hemicyleSeatCoords.seatNumber)
@@ -46,7 +56,27 @@ const data = computed(() => {
           [{
             x: hemicycleSeatCoordsBySeatNumber[hemicycleElement.mandateAssembly.seatNumber].x,
             y: hemicycleSeatCoordsBySeatNumber[hemicycleElement.mandateAssembly.seatNumber].y
-          }]
+          }],
+        animation: {
+          x: {
+            easing: 'easeInOutBack',
+            from: -1,
+            delay: 0,
+            duration: 0,
+            //duration: 1000 + Math.random() * 2000,
+            //duration: 1000 + splitmix32(hemicycleElement.mandateAssembly.seatNumber)() * 2000,
+            loop: false
+          },
+          y: {
+            easing: 'easeInOutBack',
+            from: -1,
+            delay: 0,
+            //duration: 0,
+            // duration: 1000 + Math.random() * 2000,
+            duration: 1000 + splitmix32(hemicycleElement.mandateAssembly.seatNumber)() * 2000,
+            loop: false
+          }
+        }
       }
     })
   }
@@ -102,7 +132,7 @@ const options = {
       { intersect: true },
       true
     );
-    deputiesStore.deputyIdSelectedOnHemicycle = data.value.datasets[elementClicked[0].datasetIndex].label
+    deputiesStore.deputyIdSelectedOnHemicycle = _.keyBy(props.hemicycleElements, hemicyleElement => hemicyleElement.mandateAssembly.seatNumber)[data.value.datasets[elementClicked[0].datasetIndex].label].deputy.id
   },
   plugins: {
     legend: {
@@ -113,20 +143,6 @@ const options = {
     }
   },
   animation: true,
-  animations: {
-    x: {
-      easing: 'easeInOutBack',
-      from: -1,
-      delay: 0,
-      duration: 3000
-    },
-    y: {
-      easing: 'easeInOutBack',
-      from: -1,
-      delay: 0,
-      duration: 3000
-    }
-  },
 }
 
 
