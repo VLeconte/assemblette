@@ -95,7 +95,7 @@ onMounted(
       <i class="text-sm text-gray-500 pi pi-calendar-minus"></i>
       <p class="text-sm text-gray-500 p-0">{{ ballot.ballotDate }}</p>
     </div>
-    <button @click="toggleShowTable" class="flex flex-row gap-x-2 items-baseline text-sm text-gray-500">
+    <button @click="toggleShowTable" class="flex flex-row gap-x-2 items-baseline text-sm text-gray-500 cursor-pointer">
       <i class="pi text-inherit" :class="showTable ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
       <div class="text-inherit">
         <p>{{ showTable ? "Voir moins" : "Voir plus" }}</p>

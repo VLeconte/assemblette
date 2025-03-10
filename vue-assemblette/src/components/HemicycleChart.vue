@@ -12,7 +12,7 @@ import {
   PointElement,
   type ChartDataset,
 } from 'chart.js'
-import { computed, onMounted, reactive, ref, type PropType } from 'vue';
+import { computed, onMounted, reactive, type PropType } from 'vue';
 import { Scatter } from 'vue-chartjs'
 import type { Authority } from '@/entities/authority';
 import { useDeputiesStore } from '@/store/store-deputies';
@@ -32,7 +32,7 @@ const deputiesStore = useDeputiesStore()
 
 Chart.register(CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend)
 
-function splitmix32(a) {
+function splitmix32(a: number) {
   return function () {
     a |= 0;
     a = a + 0x9e3779b9 | 0;
@@ -125,21 +125,38 @@ const options = {
     }
   },
   onClick: (e) => {
-    console.log(e)
     const elementClicked = e.chart.getElementsAtEventForMode(
       e,
       'nearest',  // Finds the nearest point
       { intersect: true },
       true
     );
-    deputiesStore.deputyIdSelectedOnHemicycle = _.keyBy(props.hemicycleElements, hemicyleElement => hemicyleElement.mandateAssembly.seatNumber)[data.value.datasets[elementClicked[0].datasetIndex].label].deputy.id
+    if (!_.isEmpty(elementClicked)) {
+      deputiesStore.deputyIdSelectedOnHemicycle = _.keyBy(props.hemicycleElements, hemicyleElement => hemicyleElement.mandateAssembly.seatNumber)[data.value.datasets[elementClicked[0].datasetIndex].label].deputy.id
+    }
+  },
+  onHover: (e) => {
+    const elementHovered = e.chart.getElementsAtEventForMode(
+      e,
+      'nearest',  // Finds the nearest point
+      { intersect: true },
+      true
+    );
+    e.native.target.style.cursor = _.isEmpty(elementHovered) ? 'default' : 'pointer';
   },
   plugins: {
     legend: {
       display: false
     },
     tooltip: {
-      enabled: true
+      enabled: true,
+      callbacks: {
+        label: function (context) {
+          return context.dataset.label
+        }
+      },
+      bodyColor: "#000000",
+      backgroundColor: "#fff"
     }
   },
   animation: true,
@@ -342,6 +359,7 @@ function getHemicyleCoords() {
 
 onMounted(() => {
   hemicyleSeatsCoords.data = getHemicyleCoords()
+  deputiesStore.deputyIdSelectedOnHemicycle = ""
   hemicyleSeatsCoords.isLoading = false
 }
 )

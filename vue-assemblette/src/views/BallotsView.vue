@@ -8,7 +8,7 @@ import { useVotesStore } from '@/store/store-votes';
 import { useAuthoritiesStore } from '@/store/store-authorities';
 import { useMandatesStore } from '@/store/store-mandates';
 import { useBallotsStore } from '@/store/store-ballots';
-import Paginator from "primevue/paginator"
+import PaginatorAssemblette from '@/components/PaginatorAssemblette.vue';
 
 const deputiesStore = useDeputiesStore()
 const votesStore = useVotesStore()
@@ -43,10 +43,6 @@ onMounted(
   <div v-else class="w-screen grid grid-cols-1 gap-8 p-4 justify-center">
     <BallotCard v-for="ballot in ballotsOrdered.slice(paginatorFirstRow, paginatorFirstRow + 5)" :key="ballot.id"
       :ballot="ballot" />
-    <Paginator v-model:first=paginatorFirstRow :rows="5" :totalRecords=ballotsOrdered.length :page-link-size="3"
-      :template="{
-        '640px': 'FirstPageLink PrevPageLink JumpToPageDropdown NextPageLink LastPageLink',
-        default: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink JumpToPageDropdown'
-      }"></Paginator>
+    <PaginatorAssemblette v-model="paginatorFirstRow" :rows="5" :size="ballotsOrdered.length" :pages-selectable="3" />
   </div>
 </template>

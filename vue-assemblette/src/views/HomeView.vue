@@ -12,6 +12,7 @@ import { getActiveMandatesForSpecificDate } from '@/utils/mandates-utils';
 import HemicycleChart from '@/components/HemicycleChart.vue';
 import { useAuthoritiesStore } from '@/store/store-authorities';
 import type { Authority } from '@/entities/authority';
+import HemicyleElementFullInfo from '@/components/HemicyleElementFullInfo.vue';
 
 const deputiesStore = useDeputiesStore()
 const mandatesStore = useMandatesStore()
@@ -62,9 +63,8 @@ onMounted(
       <HemicycleChart :hemicycle-elements="hemicycleElements" :authorities="authorities" />
     </div>
     <div v-if="!_.isEmpty(deputiesStore.deputyIdSelectedOnHemicycle)" class="w-screen flex justify-center">
-      <DeputyCard
-        :deputy="_.keyBy(hemicycleElements, hemicycleElement => hemicycleElement.deputy.id)[deputiesStore.deputyIdSelectedOnHemicycle].deputy"
-        :mandates="mandatesByDeputies[deputiesStore.deputyIdSelectedOnHemicycle]" />
+      <HemicyleElementFullInfo
+        :hemicycle-element="_.keyBy(hemicycleElements, hemicycleElement => hemicycleElement.deputy.id)[deputiesStore.deputyIdSelectedOnHemicycle]" />
     </div>
     <div class="w-screen flex flex-wrap gap-8 p-4 justify-center">
       <DeputyCard v-for="deputy in deputies" :key="deputy.id" :deputy="deputy"
